@@ -1,0 +1,28 @@
+{
+    "apps": [
+        {
+            "name": "Blowater",
+            "url": "https://blowater.deno.dev",
+            "description":"",
+            "categories":["chat"]
+        },
+        {
+            "name": "Blowater",
+            "url": "https://blowater.deno.dev",
+            "description":"",
+            "categories":["social"]
+        },
+        {
+            "name": "Blowater",
+            "url": "https://blowater.deno.dev",
+            "description":"",
+            "categories":["blog"]
+        },
+        {
+            "name": "Blowater",
+            "url": "https://blowater.deno.dev",
+            "description":"",
+            "categories":["tools"]
+        }
+    ]
+}
