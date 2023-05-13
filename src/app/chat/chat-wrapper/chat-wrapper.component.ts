@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Contact } from '../contact';
 import { ChatService } from '../chat.service';
 import { Account, AcctMgmtService } from 'src/app/acct-mgmt/acct-mgmt.service';
+import { BehaviorSubject, Observable, combineLatest, combineLatestAll, combineLatestWith, map, of } from 'rxjs';
+import { Message } from '../message';
 
 
 
@@ -12,11 +14,10 @@ import { Account, AcctMgmtService } from 'src/app/acct-mgmt/acct-mgmt.service';
   styleUrls: ['./chat-wrapper.component.scss']
 })
 export class ChatWrapperComponent implements OnInit {
-  contacts: Contact[] | null
-
-  acct2contacts: Record<string, string[]>;
 
   selectedContact: Contact | null;
+  selectedContactSub = new BehaviorSubject<Contact | null>(null);
+  selectedContact$ = this.selectedContactSub.asObservable();
 
   contactInput?: string
   textInput?:string;
@@ -24,25 +25,52 @@ export class ChatWrapperComponent implements OnInit {
   // current account (sender)
   currentAccount?: Account | null;
 
+  // this should be sorted by created_at by asc
+  currentMsgs?: Observable<Message[]>;
+  currentContacts?: Observable<Contact[]>;
 
+  constructor( readonly chatSvc: ChatService, private readonly acctMgmt: AcctMgmtService){
 
-  constructor(private readonly chatSvc: ChatService, private readonly acctMgmt: AcctMgmtService){
-    this.contacts = null;
-    this.acct2contacts = {};
     this.selectedContact = null;
-
+ 
   }
   ngOnInit(): void {
+    this.currentContacts = this.chatSvc.currentAcctContacts$.pipe(
+      map(pubks=> {
+        if(!pubks){
+          return [];
+        }
+        return pubks.map(pubk => ({
+          pubk
+        }))
+      })
+    );
+
     this.acctMgmt.selectedAccount$
     .subscribe({
       next: acct => {
         this.currentAccount = acct;
-        
-
+        this.chatSvc.updateCurrentAcct(acct?.prvk!, acct?.pubk!);
       },
       error: err => console.error(err)
     });
 
+    this.currentMsgs = combineLatest([
+      this.selectedContact$,
+      this.chatSvc.indexedMsgs$
+    ]).pipe(
+      map(([selectedContact, allMsgs]) => {
+        if(!allMsgs) return [];
+        if(selectedContact!.pubk in allMsgs ){
+          const msgs = allMsgs[selectedContact!.pubk];
+          msgs.sort((msg1, msg2) => msg2.createdAt - msg1.createdAt)
+          return msgs;
+        } else {
+          return [];
+        }
+
+      })
+    )
 
     
   }
@@ -77,20 +105,22 @@ export class ChatWrapperComponent implements OnInit {
     }
 
     const { pubk } = this.currentAccount;
-    if(! (pubk in this.acct2contacts)) {
-      this.acct2contacts[pubk] = [this.contactInput]
-    } else {  
-      this.acct2contacts[pubk].push(this.contactInput);
-    }
-
-    this.contacts = this.pubks2contact(this.acct2contacts[pubk]);
-
+    this.chatSvc.addContact(pubk, this.contactInput);
     this.contactInput = "";
+  }
+
+  selectContact(c: Contact) {
+    this.selectedContact = c; 
+    this.selectedContactSub.next(c);
   }
 
   pubks2contact(pubks: string[]): Contact[] {
     return pubks.map(pubk=> ({
       pubk
     }));
+  }
+
+  msgTrackBy(idx:number, msg: Message) {
+    return msg.id
   }
 }

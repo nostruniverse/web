@@ -6,11 +6,11 @@
             <button (click)="addContact()">Add</button>
         </div>
         <div class="grow relative">
-            <div class="overflow-y-auto absolute top-0 right-0 bottom-0 left-0" *ngIf="contacts">
+            <div class="overflow-y-auto absolute top-0 right-0 bottom-0 left-0" *ngIf="currentContacts">
                 <app-contacts-list-item 
-                   *ngFor="let contact of contacts" 
+                   *ngFor="let contact of currentContacts | async" 
                    [contact]="contact"
-                   (select)="selectedContact = contact"
+                   (select)="selectContact(contact)"
                    ></app-contacts-list-item> 
 
             </div>
@@ -24,8 +24,20 @@
         class="grow flex flex-col items-stretch justify-stretch"
         >   
 
-            <div class="grow">
-                
+            <div class="grow relative">
+                <div class="overflow-y-auto absolute top-0 right-0 bottom-0 left-0 flex flex-col-reverse items-stretch" *ngIf="currentMsgs && currentAccount">
+                    <div *ngFor="let msg of currentMsgs | async; trackBy:msgTrackBy" class="p-4">
+                        <div class="w-50 bg-white rounded-md drop-shadow-md px-4 py-2" [ngClass]="{
+                            'float-right': msg.fromPk == currentAccount.pubk,
+                            'float-left': msg.fromPk != currentAccount.pubk,
+                        }">
+                            <div>{{msg.fromPk == currentAccount.pubk ? "me": "other"}}</div>
+                            <div>{{msg.content}}</div>
+                            <div class="text-gray-300 text-xs">{{msg.createdAt | date:'medium'  }}</div>
+                        </div>
+                        
+                    </div>
+                </div>
             </div>
 
             <div class="bg-white p-4 flex flex-row items-center gap-4 justify-stretch">
