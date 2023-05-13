@@ -31,7 +31,7 @@ export class AppButton {
         }
     }
 
-    @Input('wnl-selected') 
+    @Input('app-selected') 
     public get selected(): boolean {
         return this._selected;
     }

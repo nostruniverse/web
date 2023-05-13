@@ -3,26 +3,16 @@
         {
             "name": "Blowater",
             "url": "https://blowater.deno.dev",
-            "description":"",
-            "categories":["chat"]
+            "description":"A popular web chat application",
+            "categories":["chat"],
+            "iconUrl":"https://blowater.deno.dev/logo.ico"
         },
         {
-            "name": "Blowater",
-            "url": "https://blowater.deno.dev",
-            "description":"",
-            "categories":["social"]
-        },
-        {
-            "name": "Blowater",
-            "url": "https://blowater.deno.dev",
-            "description":"",
-            "categories":["blog"]
-        },
-        {
-            "name": "Blowater",
-            "url": "https://blowater.deno.dev",
-            "description":"",
-            "categories":["tools"]
+            "name": "Damus",
+            "author":"Will Casarin",
+            "description":"A popular social client for iOS",
+            "categories": ["social", "twitter"],
+            "iconUrl":"https://uploads-ssl.webflow.com/641d33e0ff5853016df4510b/641d3690f3977490ab3a4540_damus-logo-p-500.png"
         }
     ]
 }

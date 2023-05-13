@@ -25,13 +25,13 @@
         >   
 
             <div class="grow relative">
-                <div class="overflow-y-auto absolute top-0 right-0 bottom-0 left-0 flex flex-col-reverse items-stretch" *ngIf="currentMsgs && currentAccount">
+                <div class="overflow-y-auto absolute top-0 right-0 bottom-0 left-0 flex flex-col-reverse items-stretch" *ngIf="currentMsgs && account">
                     <div *ngFor="let msg of currentMsgs | async; trackBy:msgTrackBy" class="p-4">
                         <div class="w-50 bg-white rounded-md drop-shadow-md px-4 py-2" [ngClass]="{
-                            'float-right': msg.fromPk == currentAccount.pubk,
-                            'float-left': msg.fromPk != currentAccount.pubk,
+                            'float-right': msg.fromPk == account.pk,
+                            'float-left': msg.fromPk != account.pk,
                         }">
-                            <div>{{msg.fromPk == currentAccount.pubk ? "me": "other"}}</div>
+                            <div>{{msg.fromPk == account.pk ? "me": ""}}</div>
                             <div>{{msg.content}}</div>
                             <div class="text-gray-300 text-xs">{{msg.createdAt | date:'medium'  }}</div>
                         </div>

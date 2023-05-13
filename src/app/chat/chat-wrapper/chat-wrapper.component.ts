@@ -1,11 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Contact } from '../contact';
 import { ChatService } from '../chat.service';
-import { Account, AcctMgmtService } from 'src/app/acct-mgmt/acct-mgmt.service';
 import { BehaviorSubject, Observable, combineLatest, combineLatestAll, combineLatestWith, map, of } from 'rxjs';
 import { Message } from '../message';
 
 
+interface NostrAccount {
+  sk: string;
+  pk: string;
+}
 
 
 @Component({
@@ -13,8 +16,11 @@ import { Message } from '../message';
   templateUrl: './chat-wrapper.component.html',
   styleUrls: ['./chat-wrapper.component.scss']
 })
-export class ChatWrapperComponent implements OnInit {
+export class ChatWrapperComponent implements OnInit, OnChanges  {
 
+  @Input()
+  account?: NostrAccount;
+  
   selectedContact: Contact | null;
   selectedContactSub = new BehaviorSubject<Contact | null>(null);
   selectedContact$ = this.selectedContactSub.asObservable();
@@ -23,16 +29,23 @@ export class ChatWrapperComponent implements OnInit {
   textInput?:string;
 
   // current account (sender)
-  currentAccount?: Account | null;
+  currAcctSub = new BehaviorSubject<NostrAccount | null>(null);
+  currAcct$ = this.currAcctSub.asObservable();
 
   // this should be sorted by created_at by asc
   currentMsgs?: Observable<Message[]>;
   currentContacts?: Observable<Contact[]>;
 
-  constructor( readonly chatSvc: ChatService, private readonly acctMgmt: AcctMgmtService){
+
+  constructor( readonly chatSvc: ChatService){
 
     this.selectedContact = null;
  
+  }
+  ngOnChanges(changes: SimpleChanges): void {
+    if('account' in changes){
+      this.currAcctSub.next(changes["account"].currentValue)
+    }
   }
   ngOnInit(): void {
     this.currentContacts = this.chatSvc.currentAcctContacts$.pipe(
@@ -46,11 +59,10 @@ export class ChatWrapperComponent implements OnInit {
       })
     );
 
-    this.acctMgmt.selectedAccount$
+    this.currAcct$
     .subscribe({
       next: acct => {
-        this.currentAccount = acct;
-        this.chatSvc.updateCurrentAcct(acct?.prvk!, acct?.pubk!);
+        this.chatSvc.updateCurrentAcct(acct?.sk!, acct?.pk!);
       },
       error: err => console.error(err)
     });
@@ -80,7 +92,8 @@ export class ChatWrapperComponent implements OnInit {
       return;
     }
 
-    if(!this.currentAccount){
+    const currAcct = this.currAcctSub.getValue();
+    if(!currAcct){
       return;
     }
 
@@ -88,24 +101,26 @@ export class ChatWrapperComponent implements OnInit {
       return;
     }
 
-    const { prvk, pubk } = this.currentAccount;
-    if(!prvk){
+    const { sk, pk } = currAcct;
+    if(!sk || !pk){
       return;
     }
     const pk2 = this.selectedContact.pubk;
 
-    this.chatSvc.sendDirectMessage(prvk, pubk, pk2, this.textInput);
+    this.chatSvc.sendDirectMessage(sk, pk, pk2, this.textInput);
 
     this.textInput = ""
   }
 
   addContact() {
-    if(!this.contactInput || !this.currentAccount){
+    const currAcct = this.currAcctSub.getValue();
+
+    if(!this.contactInput || !currAcct){
       return;
     }
 
-    const { pubk } = this.currentAccount;
-    this.chatSvc.addContact(pubk, this.contactInput);
+    const { pk } = currAcct;
+    this.chatSvc.addContact(pk, this.contactInput);
     this.contactInput = "";
   }
 

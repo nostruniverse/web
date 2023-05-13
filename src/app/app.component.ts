@@ -10,9 +10,6 @@ export class AppComponent {
 
   constructor(){
    
-
-    // const relay = new Relay({url:"wss://nos.lol" });
-    // relay.connect()
   }
 
 
