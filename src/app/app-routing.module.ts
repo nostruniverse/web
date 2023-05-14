@@ -14,7 +14,7 @@ const routes: Routes = [
   },
   {
     path:"",
-    redirectTo: "/apps",
+    redirectTo: "apps",
     pathMatch: "full"
   }
 ];
