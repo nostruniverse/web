@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "gh-page":"ng build --output-path docs --base-href web",
+    "gh-page": "ng deploy --cname=nostr.universe",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -32,6 +32,7 @@
     "@angular/cli": "~16.0.0",
     "@angular/compiler-cli": "^16.0.0",
     "@types/jasmine": "~4.3.0",
+    "angular-cli-ghpages": "^1.0.6",
     "autoprefixer": "^10.4.14",
     "jasmine-core": "~4.6.0",
     "karma": "~6.4.0",
