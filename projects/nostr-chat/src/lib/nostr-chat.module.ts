@@ -6,6 +6,8 @@ import { ContactsListItemComponent } from './contacts-list-item/contacts-list-it
 import { FormsModule } from '@angular/forms';
 import { UiModule } from 'ui';
 import {DialogModule} from '@angular/cdk/dialog';
+import {ScrollingModule} from '@angular/cdk/scrolling';
+import { InfiniteScrollModule } from "ngx-infinite-scroll";
 
 
 
@@ -18,7 +20,9 @@ import {DialogModule} from '@angular/cdk/dialog';
     CommonModule,
     FormsModule,
     UiModule,
-    DialogModule
+    DialogModule,
+    ScrollingModule,
+    InfiniteScrollModule
   ],
   providers: [
     ChatService

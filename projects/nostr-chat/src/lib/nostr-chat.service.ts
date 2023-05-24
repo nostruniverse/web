@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { Relay, getEventHash, nip04, relayInit, signEvent, Sub, Event } from 'nostr-tools';
-import { BehaviorSubject, Observable, Subject, debounceTime } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, debounceTime, from } from 'rxjs';
 import { Message } from './message';
 
 export const CHAT_SERVICE_CONFIG = Symbol("CHAT_SERVICE_CONFIG")
@@ -87,6 +87,7 @@ export class ChatService {
         // prepare update indexed messages 
         this.currAcctIndexedMsgs = {};
 
+        // listen to messages since now
         this.subCurrAcctMessages(sk, pk);
 
 
@@ -94,40 +95,34 @@ export class ChatService {
       })
   }
 
-  public getMessages(sk: string, pk: string, until: number, limit:number): Promise<Event[]> {
-    return this.relay.list([
+  public loadMessagesUntil(sk: string, pk: string, fromPk:string, until: number, limit:number) {
+    from(this.relay.list([
       {
         kinds: [4],
         authors:[pk],
+        "#p": [fromPk],
         limit,
         until
       },
       {
         kinds: [4],
+        authors: [fromPk],
         "#p": [pk], // sent to me
         limit,
         until
       }
-    ])
+    ]))
+    .subscribe({
+      next: events => {
+        const tasks = events.map(e => this.onRecvChatEvent(e, sk, pk));
+        from(Promise.all(tasks)).subscribe();
+      },
+      error: err => console.error("loadMessagesUntil", until, limit, err)
+    })
   }
 
-  private subCurrAcctMessages(sk: string, pk: string){
-    let sub = this.relay.sub([
-      {
-        kinds: [4],
-        authors: [pk], // what I sent
-       
-      },
-      {
-        kinds: [4],
-        "#p": [pk] // sent to me
-      }
-    ]);
-    
-    
-
-    sub.on('event', async event => {
-      const tagPArr = event.tags.find(tag=> tag[0] == "p");
+  private async onRecvChatEvent(event: Event, sk:string, pk:string) {
+    const tagPArr = event.tags.find(tag=> tag[0] == "p");
       let tagP = null;
       if(!tagPArr) {
         console.log("ignore event because no tag p")
@@ -150,9 +145,25 @@ export class ChatService {
         console.error("decrypt message error", event);
       }
       
-      
+  }
 
-    });
+  private subCurrAcctMessages(sk: string, pk: string){
+    let sub = this.relay.sub([
+      {
+        kinds: [4],
+        authors: [pk], // what I sent
+        since: Math.round(Date.now() / 1000)
+      },
+      {
+        kinds: [4],
+        "#p": [pk], // sent to me
+        since: Math.round(Date.now() / 1000)
+      }
+    ]);
+    
+    
+
+    sub.on('event', event => this.onRecvChatEvent(event, sk, pk));
   }
 
   private onRecvNewMessage(msg: Message, currAcctPk:string) {

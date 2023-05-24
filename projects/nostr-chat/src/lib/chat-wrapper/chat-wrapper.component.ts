@@ -83,7 +83,6 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
   @Output()
   notification: EventEmitter<ChatWrapperNotification> = new EventEmitter();
   
-  selectedContact: Contact | null;
   selectedContactSub = new BehaviorSubject<Contact | null>(null);
   selectedContact$ = this.selectedContactSub.asObservable();
 
@@ -101,10 +100,10 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
 
   currentContacts$?: Observable<Contact[] | null>;
 
+  numberOfMessagesPerLoad = 5;
 
   constructor( readonly chatSvc: ChatService, private readonly dialog: Dialog){
 
-    this.selectedContact = null;
  
   }
   ngOnChanges(changes: SimpleChanges): void {
@@ -132,6 +131,27 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
       error: err => console.error(err)
     });
 
+    // if new contact selected, load first x messages
+    this.selectedContact$.subscribe(c => {
+      const acct = this.currAcctSub.getValue();
+      if(!acct){
+        this.notification.next({
+          level: "error",
+          content: "No account set"
+        })
+        return;
+      }
+      if(!c){
+        this.notification.next({
+          level: "error",
+          content: "No contact set"
+        })
+        return;
+      }
+      const { sk, pk } = acct;
+      this.chatSvc.loadMessagesUntil(sk, pk, c.pubk, Math.round(Date.now() / 1000), this.numberOfMessagesPerLoad)
+    })
+
     this.currentMsgs$ = combineLatest([
       this.selectedContact$,
       this.chatSvc.indexedMsgs$
@@ -140,7 +160,11 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
         if(!allMsgs) return [];
         if(selectedContact!.pubk in allMsgs ){
           const msgs = allMsgs[selectedContact!.pubk];
+          // latest first
           msgs.sort((msg1, msg2) => msg2.createdAt - msg1.createdAt)
+
+          // oldest is the last
+          this.oldestTimestamp = msgs[msgs.length-1].createdAt;
           return msgs;
         } else {
           return [];
@@ -161,8 +185,8 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
     if(!currAcct){
       return;
     }
-
-    if(!this.selectedContact){
+    const selContact = this.selectedContactSub.getValue();
+    if(!selContact){
       return;
     }
 
@@ -170,11 +194,37 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
     if(!sk || !pk){
       return;
     }
-    const pk2 = this.selectedContact.pubk;
+    const pk2 = selContact.pubk;
 
     this.chatSvc.sendDirectMessage(sk, pk, pk2, this.textInput);
 
     this.textInput = ""
+  }
+
+  loadEarlierMessages(){
+    const acct = this.currAcctSub.getValue();
+      if(!acct){
+        this.notification.next({
+          level: "error",
+          content: "No account set"
+        })
+        return;
+      }
+      const selContact = this.selectedContactSub.getValue();
+
+      if(!selContact){
+        this.notification.next({
+          level: "error",
+          content: "No contact set"
+        })
+        return;
+      }
+      const { sk, pk } = acct;
+
+      if(!this.oldestTimestamp){
+        return;
+      }
+      this.chatSvc.loadMessagesUntil(sk, pk, selContact.pubk, this.oldestTimestamp, this.numberOfMessagesPerLoad)
   }
 
   openAddContactDialog() {
@@ -207,7 +257,6 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
   }
 
   selectContact(c: Contact) {
-    this.selectedContact = c; 
     this.selectedContactSub.next(c);
   }
 

@@ -26,13 +26,18 @@
 
     <div class="col-span-4 h-full flex flex-col justify-stretch items-stretch">
         
-        <div *ngIf="selectedContact; else nochat"
+        <div *ngIf="selectedContact$ | async; else nochat"
         class="grow flex flex-col items-stretch justify-stretch"
         >   
 
             <div class="grow relative">
-                <div class="overflow-y-auto absolute top-0 right-0 bottom-0 left-0 flex flex-col-reverse items-stretch" *ngIf="currentMsgs$ && account">
-                    <div *ngFor="let msg of currentMsgs$ | async; trackBy:msgTrackBy" class="p-4">
+                <!-- <cdk-virtual-scroll-viewport 
+                class="absolute top-0 right-0 bottom-0 left-0" 
+                *ngIf="currentMsgs$ && account"
+                itemSize="80"
+                >
+
+                    <div *cdkVirtualFor="let msg of currentMsgs$ | async" class="p-4">
                         <div class="w-50 bg-white rounded-md drop-shadow-md px-4 py-2" [ngClass]="{
                             'float-right': msg.fromPk == account.pk,
                             'float-left': msg.fromPk != account.pk,
@@ -43,11 +48,33 @@
                         </div>
                         
                     </div>
+                </cdk-virtual-scroll-viewport> -->
+
+
+                <div 
+                infiniteScroll
+                [infiniteScrollUpDistance]="2"
+                (scrolledUp)="loadEarlierMessages()"
+                [scrollWindow]="false"
+                class="overflow-y-auto absolute top-0 right-0 bottom-0 left-0 flex flex-col-reverse items-stretch" *ngIf="currentMsgs$ && account">
+                    <div *ngFor="let msg of currentMsgs$ | async; trackBy:msgTrackBy" class="p-4">
+                        <div class="w-50 bg-white rounded-md drop-shadow-md px-4 py-2" [ngClass]="{
+                            'float-right': msg.fromPk == account.pk,
+                            'float-left': msg.fromPk != account.pk,
+                        }">
+                            <div>{{msg.fromPk == account.pk ? "me": ""}}</div>
+                            <div>{{msg.content}}</div>
+                            <div class="text-gray-300 text-xs">{{msg.createdAt*1000 | date:'medium'  }}</div>
+                        </div>
+                        
+                    </div>
                 </div>
             </div>
 
             <div class="bg-white p-4 flex flex-row items-center gap-4 justify-stretch">
-                <input [(ngModel)]="textInput" type="text"  class="grow px-2 border border-gray-300 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <input
+                (keyup.enter)="send()" 
+                [(ngModel)]="textInput" type="text"  class="grow px-2 border border-gray-300 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <button (click)="send()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Send</button>
               </div>
         </div>

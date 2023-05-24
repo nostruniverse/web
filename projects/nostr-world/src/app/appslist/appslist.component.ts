@@ -61,6 +61,50 @@ export class AppInfoCard {
   }
 }
 
+
+@Component({
+  selector: 'appdetailinfo-card',
+  template: `
+    <div class="rounded-lg border p-4 cursor-pointer" (click)="clickCard()">
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-row gap-4">
+          <img class="h-12 w-12 rounded-md" [src]="appInfo.iconUrl">
+          <div>
+            <h5 class="mb-2 text-xl font-medium mb-0">
+                {{appInfo.name}}
+            </h5>
+            <p *ngIf="appInfo.author">{{appInfo.author}}</p>
+          </div>
+          
+        </div>
+        <p>{{appInfo.description}}</p>
+
+      </div>
+      
+      
+      
+    </div>
+  `,
+  styles: [`
+
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class AppDetailInfoCard {
+  @Input()
+  appInfo!: AppInfo;
+
+  constructor(private readonly router: Router) {}
+  clickCard() {
+    if(this.appInfo.url?.startsWith("http")){
+      window.open(this.appInfo.url)
+    } else {
+      this.router.navigate([this.appInfo.url]);
+    }
+  }
+}
+
+
 @Component({
   selector: 'app-appslist',
   template: `
