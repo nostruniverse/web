@@ -1,14 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{html,ts}",
+    "./projects/nostr-world/src/**/*.{html,ts}",
+    "./projects/chrome-extension/src/**/*.{html,ts}",
+    "./projects/nostr-acct-mgmt/src/**/*.{html,ts}",
+    "./projects/nostr-chat/src/**/*.{html,ts}",
+    "./projects/ui/src/**/*.{html,ts}"
   ],
   theme: {
     extend: {
       colors: {
         hover: '#f3f4f6',
         systemNoti: '#fafafa',
-        primary: '#000000',
+        primary: '#070504',
         "primary-hover":"#0284c7",
         "primary-selected":"#0369a1",
         secondery: '#f8fafc',

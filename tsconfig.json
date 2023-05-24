@@ -17,6 +17,17 @@
     "declaration": false,
     "downlevelIteration": true,
     "experimentalDecorators": true,
+    "paths": {
+      "nostr-acct-mgmt": [
+        "dist/nostr-acct-mgmt"
+      ],
+      "nostr-chat": [
+        "dist/nostr-chat"
+      ],
+      "ui": [
+        "dist/ui"
+      ]
+    },
     "moduleResolution": "node",
     "importHelpers": true,
     "target": "ES2022",

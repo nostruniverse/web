@@ -1,0 +1,21 @@
+{
+    "name": "Nostr World Extension",
+    "description": "A browser action with a popup dump of nostr account management",
+    "version": "1.0.0",
+    "manifest_version": 3,
+    "permissions": ["storage"],
+    "action": {
+      "default_title": "Nostr World",
+      "default_popup": "index.html"
+    },
+    "background": {
+        "service_worker": "worker.js"
+    },
+    "content_scripts": [{
+        "matches":["https://nostrworld.app/*", "http://localhost/*"],
+        "js":["content.js"]
+    }],
+    "externally_connectable": {
+        "matches": ["https://nostrworld.app/*","http://localhost/*"]
+    }
+}

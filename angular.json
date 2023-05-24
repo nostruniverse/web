@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "nostruniverse": {
+    "nostr-world": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -11,26 +11,26 @@
         }
       },
       "root": "",
-      "sourceRoot": "src",
-      "prefix": "app",
+      "sourceRoot": "projects/nostr-world/src",
+      "prefix": "nw",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/nostruniverse",
-            "index": "src/index.html",
-            "main": "src/main.ts",
+            "outputPath": "dist/nostr-world",
+            "index": "projects/nostr-world/src/index.html",
+            "main": "projects/nostr-world/src/main.ts",
             "polyfills": [
               "zone.js"
             ],
-            "tsConfig": "tsconfig.app.json",
+            "tsConfig": "projects/nostr-world/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              "projects/nostr-world/src/favicon.ico",
+              "projects/nostr-world/src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "projects/nostr-world/src/styles.scss"
             ],
             "scripts": []
           },
@@ -65,10 +65,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "nostruniverse:build:production"
+              "browserTarget": "nostr-world:build:production"
             },
             "development": {
-              "browserTarget": "nostruniverse:build:development"
+              "browserTarget": "nostr-world:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -76,7 +76,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "nostruniverse:build"
+            "browserTarget": "nostr-world:build"
           }
         },
         "test": {
@@ -86,20 +86,219 @@
               "zone.js",
               "zone.js/testing"
             ],
-            "tsConfig": "tsconfig.spec.json",
+            "tsConfig": "projects/nostr-world/tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              "projects/nostr-world/src/favicon.ico",
+              "projects/nostr-world/src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "projects/nostr-world/src/styles.scss"
             ],
             "scripts": []
           }
         },
         "deploy": {
           "builder": "angular-cli-ghpages:deploy"
+        }
+      }
+    },
+    "chrome-extension": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/chrome-extension",
+      "sourceRoot": "projects/chrome-extension/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/chrome-extension",
+            "index": "projects/chrome-extension/src/index.html",
+            "main": "projects/chrome-extension/src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "projects/chrome-extension/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "projects/chrome-extension/src/favicon.ico",
+              "projects/chrome-extension/src/assets",
+              "projects/chrome-extension/src/manifest.json",
+              "projects/chrome-extension/src/content.js",
+              "projects/chrome-extension/src/worker.js"
+            ],
+            "styles": [
+              "projects/chrome-extension/src/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "browserTarget": "chrome-extension:build:production"
+            },
+            "development": {
+              "browserTarget": "chrome-extension:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "chrome-extension:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "projects/chrome-extension/tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "projects/chrome-extension/src/favicon.ico",
+              "projects/chrome-extension/src/assets"
+            ],
+            "styles": [
+              "projects/chrome-extension/src/styles.scss"
+            ],
+            "scripts": []
+          }
+        }
+      }
+    },
+    "nostr-acct-mgmt": {
+      "projectType": "library",
+      "root": "projects/nostr-acct-mgmt",
+      "sourceRoot": "projects/nostr-acct-mgmt/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/nostr-acct-mgmt/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/nostr-acct-mgmt/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/nostr-acct-mgmt/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/nostr-acct-mgmt/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    },
+    "nostr-chat": {
+      "projectType": "library",
+      "root": "projects/nostr-chat",
+      "sourceRoot": "projects/nostr-chat/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/nostr-chat/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/nostr-chat/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/nostr-chat/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/nostr-chat/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    },
+    "ui": {
+      "projectType": "library",
+      "root": "projects/ui",
+      "sourceRoot": "projects/ui/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/ui/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/ui/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/ui/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/ui/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
         }
       }
     }

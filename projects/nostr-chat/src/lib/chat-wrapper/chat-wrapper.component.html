@@ -1,0 +1,61 @@
+<div class="grid grid-cols-6 bg-gray-100 h-full w-full">
+    <div class="col-span-2 border-r-2 flex flex-col">
+        <!-- Contact tools area -->
+        <div class="p-2 flex flex-row items-center gap-4 border-b-2">
+            <button ui-button="secondery" (click)="openAddContactDialog()">Add contact</button>
+            <button ui-button="secondery" (click)="openCurrentNostrAcctDialog()">Account</button>
+        </div>
+
+        <!-- Contact list area -->
+        <div class="grow relative" *ngIf="currentContacts$ | async as currentContacts; else nocontactmsg">
+            <div class="overflow-y-auto absolute top-0 right-0 bottom-0 left-0" >
+                <app-contacts-list-item 
+                   *ngFor="let contact of currentContacts" 
+                   [contact]="contact"
+                   (select)="selectContact(contact)"
+                   ></app-contacts-list-item> 
+
+            </div>
+            
+        </div>
+
+        <ng-template #nocontactmsg>
+            <p class="m-4 p-4 text-center">Add contact to start chatting!</p>
+        </ng-template>
+    </div>
+
+    <div class="col-span-4 h-full flex flex-col justify-stretch items-stretch">
+        
+        <div *ngIf="selectedContact; else nochat"
+        class="grow flex flex-col items-stretch justify-stretch"
+        >   
+
+            <div class="grow relative">
+                <div class="overflow-y-auto absolute top-0 right-0 bottom-0 left-0 flex flex-col-reverse items-stretch" *ngIf="currentMsgs$ && account">
+                    <div *ngFor="let msg of currentMsgs$ | async; trackBy:msgTrackBy" class="p-4">
+                        <div class="w-50 bg-white rounded-md drop-shadow-md px-4 py-2" [ngClass]="{
+                            'float-right': msg.fromPk == account.pk,
+                            'float-left': msg.fromPk != account.pk,
+                        }">
+                            <div>{{msg.fromPk == account.pk ? "me": ""}}</div>
+                            <div>{{msg.content}}</div>
+                            <div class="text-gray-300 text-xs">{{msg.createdAt | date:'medium'  }}</div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 flex flex-row items-center gap-4 justify-stretch">
+                <input [(ngModel)]="textInput" type="text"  class="grow px-2 border border-gray-300 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <button (click)="send()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Send</button>
+              </div>
+        </div>
+
+        <ng-template #nochat>
+            <div class="text-center mt-8">
+                Select a contact to start chatting!
+            </div>
+        </ng-template>
+    </div>
+</div>

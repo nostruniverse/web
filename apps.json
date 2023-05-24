@@ -8,6 +8,12 @@
             "iconUrl":"https://blowater.deno.dev/logo.ico"
         },
         {
+            "name": "Chat",
+            "url": "/chat",
+            "description": "An minimal chat powered by the component written in Angular",
+            "categories": ["chat"]
+        },
+        {
             "name": "Damus",
             "author":"Will Casarin",
             "description":"A popular social client for iOS",
