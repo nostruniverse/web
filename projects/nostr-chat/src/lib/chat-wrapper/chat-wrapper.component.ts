@@ -222,6 +222,10 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
       const { sk, pk } = acct;
 
       if(!this.oldestTimestamp){
+        this.notification.next({
+          level: "info",
+          content: "No more messages"
+        })
         return;
       }
       this.chatSvc.loadMessagesUntil(sk, pk, selContact.pubk, this.oldestTimestamp, this.numberOfMessagesPerLoad)
