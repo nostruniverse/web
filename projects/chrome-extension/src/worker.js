@@ -3,8 +3,13 @@
 const ACCOUNT_STORAGE_LOCALSTORAGE_KEY = "acct_storage"
 const SELECTED_ACCOUNT_LOCALSTORAGE_KEY = "acct_selected"
 
-chrome.runtime.onMessageExternal.addListener(async function(request, sender, sendResponse) {
-    console.log(request, sender); 
+function messageHandlerWrapper(request, sender, sendResponse){
+    messageHandler(request, sender, sendResponse);
+    return true;
+}
+
+async function messageHandler(request, sender, sendResponse) {
+    console.log(request, sender);
     if(request.id == "nw-extension-hello"){
         return sendResponse(true);
     } 
@@ -33,4 +38,7 @@ chrome.runtime.onMessageExternal.addListener(async function(request, sender, sen
         const acct = result[SELECTED_ACCOUNT_LOCALSTORAGE_KEY];
         return sendResponse(acct)
     }
-});
+}
+
+chrome.runtime.onMessageExternal.addListener(messageHandlerWrapper);
+chrome.runtime.onMessage.addListener(messageHandlerWrapper);

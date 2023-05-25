@@ -12,8 +12,8 @@ import { from } from 'rxjs';
     <p *ngIf="isExtensionRunning && !isInExtension">Extension is running</p>
     <p *ngIf="!isExtensionRunning && !isInExtension">Extension is not running</p>
     <div class="flex flex-row gap-4 mb-4">
-      <button app-button="primary" (click)="createAccount()">New</button>
-      <button app-button="primary">Add existing</button>
+      <button ui-button="primary" (click)="createAccount()">New</button>
+      <button ui-button="primary">Add existing</button>
     </div>
    
 

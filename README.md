@@ -1,4 +1,4 @@
-# Nostr universe
+# Nostr World
 
 ## How to add your app to the universe
 
