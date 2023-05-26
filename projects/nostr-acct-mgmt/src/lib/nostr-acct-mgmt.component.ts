@@ -63,7 +63,6 @@ export class NostrAcctMgmtComponent {
     } else {
       from(acctMgmtSvc.isBrowserExtensionRunning()).subscribe({
         error: (err) => {
-          console.error(err);
           this.isExtensionRunning = false
         },
         next: (value) => {

@@ -51,9 +51,9 @@ export class AppInfoCard {
   @Input()
   appInfo!: AppInfo;
 
-  constructor(private readonly router: Router) {}
+  constructor(private readonly router: Router) { }
   clickCard() {
-    if(this.appInfo.url?.startsWith("http")){
+    if (this.appInfo.url?.startsWith("http")) {
       window.open(this.appInfo.url)
     } else {
       this.router.navigate([this.appInfo.url]);
@@ -94,9 +94,9 @@ export class AppDetailInfoCard {
   @Input()
   appInfo!: AppInfo;
 
-  constructor(private readonly router: Router) {}
+  constructor(private readonly router: Router) { }
   clickCard() {
-    if(this.appInfo.url?.startsWith("http")){
+    if (this.appInfo.url?.startsWith("http")) {
       window.open(this.appInfo.url)
     } else {
       this.router.navigate([this.appInfo.url]);
@@ -108,9 +108,9 @@ export class AppDetailInfoCard {
 @Component({
   selector: 'app-appslist',
   template: `
-    <div class="container mx-auto p-4">
+    <div class="container mx-auto p-4 flex flex-col items-stretch gap-4">
 
-    <div class="relative mb-4">
+    <div class="relative">
       <input #q (keyup)="queryChange(q.value)" type="text" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring focus:border-black" placeholder="Search">
       <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
         <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -118,7 +118,8 @@ export class AppDetailInfoCard {
         </svg>
       </div>
     </div>
-      <div class="flex flex-row gap-4 flex-wrap">
+    <a href="https://github.com/nostruniverse/web#how-to-add-your-app-to-the-universe" class="underline self-end text-blue-400 text-sm">Submit your Nostr App here!</a>
+    <div class="flex flex-row gap-4 flex-wrap">
         <button *ngFor="let cat of categories" 
         ui-button="secondery"
         ui-shape="pill"
@@ -139,7 +140,7 @@ export class AppDetailInfoCard {
 export class AppsListComponent implements OnInit {
   apps: AppInfo[];
   categories: string[];
-  catSelect:Record<string, boolean>;
+  catSelect: Record<string, boolean>;
 
   filterSub = new BehaviorSubject<AppInfoFilter | null>(null);
   filter$ = this.filterSub.asObservable();

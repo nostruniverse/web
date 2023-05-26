@@ -175,7 +175,7 @@ export class NostrAcctMgmtService {
     }
 
     runInBrowserExtension(): boolean {
-      return chrome && chrome.runtime && chrome.runtime.id != null
+      return chrome != null && chrome.runtime != null && chrome.runtime.id != null
     }
     
 

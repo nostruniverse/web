@@ -5,18 +5,37 @@ import { Account } from "./account";
     selector: 'nw-acct-card',
     template: `
     <div 
-      class="rounded-lg border p-4 cursor-pointer" 
-      (click)="select.next()"
+      class="rounded-lg border p-4 flex flex-col gap-2 items-stretch" 
       [ngClass]="{
          'border-red-500': isSelected
        }">
       
-      <h5 class="mb-2 font-medium">Public key</h5>
-      <p class="truncate mb-4">{{account.pubk}}</p>
-  
-      <h5 class="mb-2 font-medium">Private key</h5>
-      <p class="truncate mb-4">{{account.prvk}}</p>
-      <button app-button="warning" (click)="remove.next()">Remove</button>
+       <div class="flex flex-row justify-between items-center">
+          <h5 class="font-medium ">Public key</h5>
+          <ui-brief-text [text]="account.pubk"></ui-brief-text>
+       </div>
+      
+       <div class="flex flex-row justify-between items-center">
+          <h5 class="font-medium ">Private key</h5>
+          <ui-brief-text [text]="account.prvk!"></ui-brief-text>
+       </div>
+
+       <div class="flex flex-row justify-between items-center">
+          <h5 class="font-medium ">Internet Identifier</h5>
+          <ui-editable-text [text]="account.id!"></ui-editable-text>
+       </div>
+
+       <div class="flex flex-row justify-between items-center">
+          <h5 class="font-medium ">Name</h5>
+          <ui-editable-text [text]="account.name!"></ui-editable-text>
+       </div>
+      
+
+      <div class="flex flex-col items-stretch gap-2 border-t">
+        <button *ngIf="!isSelected" ui-button="primary" (click)="select.next()">Set as default</button>
+        <button ui-button="warning" (click)="remove.next()">Remove</button>
+      </div>
+      
     </div>
     `
   })

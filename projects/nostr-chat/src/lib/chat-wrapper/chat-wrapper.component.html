@@ -1,7 +1,7 @@
 <div class="grid grid-cols-6 bg-gray-100 h-full w-full">
-    <div class="col-span-2 border-r-2 flex flex-col">
+    <div class="col-span-1 border-r-2 flex flex-col">
         <!-- Contact tools area -->
-        <div class="p-2 flex flex-row items-center gap-4 border-b-2">
+        <div class="p-2 flex flex-row items-center gap-4 border-b-2 flex-wrap">
             <button ui-button="secondery" (click)="openAddContactDialog()">Add contact</button>
             <button ui-button="secondery" (click)="openCurrentNostrAcctDialog()">Account</button>
         </div>
@@ -24,7 +24,7 @@
         </ng-template>
     </div>
 
-    <div class="col-span-4 h-full flex flex-col justify-stretch items-stretch">
+    <div class="col-span-5 h-full flex flex-col justify-stretch items-stretch">
         
         <div *ngIf="selectedContact$ | async; else nochat"
         class="grow flex flex-col items-stretch justify-stretch"

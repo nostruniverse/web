@@ -7,7 +7,7 @@ type ButtonShape = "button" | "pill"
 @Directive({
     selector: '[ui-button]'
 })
-export class UiButton {
+export class Button {
     private _type:ButtonType = "primary"
     private _selected = false;
     private _shape!: ButtonShape;
