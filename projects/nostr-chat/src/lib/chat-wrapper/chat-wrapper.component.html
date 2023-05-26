@@ -7,10 +7,10 @@
         </div>
 
         <!-- Contact list area -->
-        <div class="grow relative" *ngIf="currentContacts$ | async as currentContacts; else nocontactmsg">
+        <div class="grow relative" *ngIf="chatSvc.contacts$ | async as contacts; else nocontactmsg">
             <div class="overflow-y-auto absolute top-0 right-0 bottom-0 left-0" >
                 <app-contacts-list-item 
-                   *ngFor="let contact of currentContacts" 
+                   *ngFor="let contact of contacts"
                    [contact]="contact"
                    (select)="selectContact(contact)"
                    ></app-contacts-list-item> 

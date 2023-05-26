@@ -43,7 +43,6 @@ export class NostrAcctMgmtService {
     
          from(this.isBrowserExtensionRunning())
          .pipe(catchError(err=>{
-            console.error(err);
             return of(false)
          })).subscribe({
           next:  isExtRunning=>{

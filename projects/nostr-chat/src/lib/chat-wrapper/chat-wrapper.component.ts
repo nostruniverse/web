@@ -17,10 +17,12 @@ export interface NostrAccount {
 @Component({
   template: `
     <div class="p-8 flex flex-col gap-4 bg-white rounded-md">
+      <label id="name">What's your contact's name?</label>
+      <input for="name" [(ngModel)]="contact.name" type="text"  class="grow px-2 border border-gray-300 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
       <label id="pubk">What's your contact's public key?</label>
-      <input for="pubk" [(ngModel)]="pubk" type="text"  class="grow px-2 border border-gray-300 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+      <input for="pubk" [(ngModel)]="contact.pk" type="text"  class="grow px-2 border border-gray-300 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
       <div class="flex flex-row gap-4">
-        <button ui-button="primary" (click)="dialogRef.close(pubk)">Add</button>
+        <button ui-button="primary" (click)="dialogRef.close(contact)">Add</button>
         <button ui-button="warning" (click)="dialogRef.close()">Cancel</button>
       </div>
     </div>
@@ -33,9 +35,9 @@ export interface NostrAccount {
   standalone: true
 })
 export class ContactPubkeyDialog {
-  pubk!: string;
+  contact: Contact = {pk:"", name:""};
 
-  constructor(public dialogRef: DialogRef<string>) {}
+  constructor(public dialogRef: DialogRef<Contact>) {}
 }
 
 @Component({
@@ -98,8 +100,6 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
   // oldest timestamp in unix timestamp
   oldestTimestamp?: number;
 
-  currentContacts$?: Observable<Contact[] | null>;
-
   numberOfMessagesPerLoad = 5;
 
   constructor( readonly chatSvc: ChatService, private readonly dialog: Dialog){
@@ -112,21 +112,11 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
     }
   }
   ngOnInit(): void {
-    this.currentContacts$ = this.chatSvc.currentAcctContacts$.pipe(
-      map(pubks=> {
-        if(!pubks){
-          return null;
-        }
-        return pubks.map(pubk => ({
-          pubk
-        }))
-      })
-    );
 
     this.currAcct$
     .subscribe({
       next: acct => {
-        this.chatSvc.updateCurrentAcct(acct?.sk!, acct?.pk!);
+        this.chatSvc.updateAccount(acct?.sk!, acct?.pk!);
       },
       error: err => console.error(err)
     });
@@ -149,17 +139,17 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
         return;
       }
       const { sk, pk } = acct;
-      this.chatSvc.loadMessagesUntil(sk, pk, c.pubk, Math.round(Date.now() / 1000), this.numberOfMessagesPerLoad)
+      this.chatSvc.loadMessagesUntil(sk, pk, c.pk, Math.round(Date.now() / 1000), this.numberOfMessagesPerLoad)
     })
 
     this.currentMsgs$ = combineLatest([
       this.selectedContact$,
-      this.chatSvc.indexedMsgs$
+      this.chatSvc.directMessages$
     ]).pipe(
       map(([selectedContact, allMsgs]) => {
         if(!allMsgs) return [];
-        if(selectedContact!.pubk in allMsgs ){
-          const msgs = allMsgs[selectedContact!.pubk];
+        if(selectedContact!.pk in allMsgs ){
+          const msgs = allMsgs[selectedContact!.pk];
           // latest first
           msgs.sort((msg1, msg2) => msg2.createdAt - msg1.createdAt)
 
@@ -194,9 +184,16 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
     if(!sk || !pk){
       return;
     }
-    const pk2 = selContact.pubk;
+    const pk2 = selContact.pk;
 
-    this.chatSvc.sendDirectMessage(sk, pk, pk2, this.textInput);
+    this.chatSvc.sendDirectMessage(sk, pk, pk2, this.textInput).subscribe({
+      complete: () => {
+        console.log("send!")
+      },
+      error: () => {
+
+      }
+    });
 
     this.textInput = ""
   }
@@ -228,24 +225,23 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
         })
         return;
       }
-      this.chatSvc.loadMessagesUntil(sk, pk, selContact.pubk, this.oldestTimestamp, this.numberOfMessagesPerLoad)
+      this.chatSvc.loadMessagesUntil(sk, pk, selContact.pk, this.oldestTimestamp, this.numberOfMessagesPerLoad)
   }
 
   openAddContactDialog() {
 
-    const dialogRef = this.dialog.open<string>(ContactPubkeyDialog, {
+    const dialogRef = this.dialog.open<Contact>(ContactPubkeyDialog, {
       maxWidth: '50vw',
     });
 
-    dialogRef.closed.subscribe(result => {
+    dialogRef.closed.subscribe(contact => {
       const currAcct = this.currAcctSub.getValue();
 
-      if(!currAcct || !result){
+      if(!currAcct || !contact || !contact.pk){
         return;
       }
 
-      const { pk } = currAcct;
-      this.chatSvc.addContact(pk, result);
+      this.chatSvc.addContact(contact.pk, contact.name);
     });
    
   }
@@ -262,12 +258,6 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
 
   selectContact(c: Contact) {
     this.selectedContactSub.next(c);
-  }
-
-  pubks2contact(pubks: string[]): Contact[] {
-    return pubks.map(pubk=> ({
-      pubk
-    }));
   }
 
   msgTrackBy(idx:number, msg: Message) {

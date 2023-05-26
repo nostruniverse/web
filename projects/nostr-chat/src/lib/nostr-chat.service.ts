@@ -1,41 +1,62 @@
 import { Inject, Injectable } from '@angular/core';
-import { Relay, getEventHash, nip04, relayInit, signEvent, Sub, Event } from 'nostr-tools';
-import { BehaviorSubject, Observable, Subject, debounceTime, from } from 'rxjs';
+import { Relay, getEventHash, nip04, relayInit, signEvent, Sub, Event, UnsignedEvent, Filter } from 'nostr-tools';
+import { BehaviorSubject, Observable, Subject, concatMap, debounceTime, distinctUntilChanged, from, map, mergeMap, throwError } from 'rxjs';
 import { Message } from './message';
+import { Contact } from './contact';
 
 export const CHAT_SERVICE_CONFIG = Symbol("CHAT_SERVICE_CONFIG")
 
 export interface ChatServiceConfig {
-  relayUrl: string
+  relayUrl: string,
+  localContact?: boolean
 }
 
 export const CHAT_CONTACTS_LOCAL_STORAGE_KEY = "chat_contacts"
 
 
 
+export interface Account {
+  pk: string;
+  sk: string;
+}
+
+
+
 @Injectable()
 export class ChatService {
-
-  
 
   private relay: Relay;
   private currAcctRelaySubscription: Sub | null = null;
 
-  private currentAcctSub = new BehaviorSubject<[string, string] | null>(null);
-  currentAcct$ = this.currentAcctSub.asObservable();
+  // current account
+  private accountSub = new BehaviorSubject<Account | null>(null);
+  account$ = this.accountSub.asObservable();
 
-  private contacts: Record<string, string[]> ;
-  private contactsSub = new BehaviorSubject<Record<string, string[]>>({});
-  private contacts$ = this.contactsSub.asObservable().pipe(debounceTime(1000));
-
-  private currentAcctContactsSub = new BehaviorSubject<string[]>([]);
-  currentAcctContacts$ = this.currentAcctContactsSub.asObservable();
-
-  private currAcctIndexedMsgs: Record<string, Message[]> | null = null;
-  private currAcctIndexedMsgsSub =  new BehaviorSubject<Record<string, Message[]> | null>(null);
-  indexedMsgs$ = this.currAcctIndexedMsgsSub.asObservable().pipe(debounceTime(1000));
+  // object saved in localStorage for contact list of the nostr account(s)
+  // mapping from account's public key to a list of contacts
+  // private localContacts?: Record<string, Contact[]>;
+  
+  // contact list for current account
+  private contactsSub = new BehaviorSubject<Contact[] | null>(null);
+  contacts$ = this.contactsSub.asObservable().pipe(debounceTime(1000), distinctUntilChanged());
 
 
+  // mapping from sender to messages(both you send and sender send)
+  private directMessagesSub =  new BehaviorSubject<Record<string, Message[]> | null>(null);
+  directMessages$ = this.directMessagesSub.asObservable().pipe(debounceTime(1000));
+
+
+  get contacts(): Contact[] | null {
+    return this.contactsSub.getValue();
+  }
+
+  get account(): Account | null {
+    return this.accountSub.getValue();
+  }
+
+  get directMessages(): Record<string, Message[]> | null {
+    return this.directMessagesSub.getValue();
+  }
 
 
   constructor(@Inject(CHAT_SERVICE_CONFIG) private readonly config: ChatServiceConfig) {
@@ -51,22 +72,33 @@ export class ChatService {
       })
       this.relay.connect();
 
-      this.contacts = this.loadContactsFromLocalStorage();
-      this.contacts$.subscribe( c => {
-        this.saveContactsToLocalStorage(c);
-        const currAcct = this.currentAcctSub.getValue();
-        if(currAcct && this.contacts){
-          this.currentAcctContactsSub.next(this.contacts[currAcct[1]])
-        }
+      
+
+      // if contacts is updated
+      this.contacts$.subscribe( contacts => {
+        if(config.localContact){
+          if(!this.account){
+            return;
+          }
+          // save to local storage
+          this.handleLocalContactUpdate(this.account, contacts);
+          return;
+        } 
+        
+        // if managed by nostr
+        // send new contact message
+        this.updateContacts(contacts || []);
       });
 
-      this.currentAcct$.subscribe((acct) => {
+      // if new account is updated
+      this.account$.subscribe((acct) => {
+        // new account public key comes in
+
         if(!acct){
-          this.currentAcctContactsSub.next([]);
+          this.contactsSub.next(null);
           return;
         }
-        const [sk, pk] = acct;
-        // new account public key comes in
+        const {sk, pk} = acct;
         
         // unsubscribe previous account subscription to relay
         if(this.currAcctRelaySubscription){
@@ -74,18 +106,16 @@ export class ChatService {
         }
 
         // update contacts for the account if any
-        
-        let currentContacts: any[] | null = null;
-        if(this.contacts){
-          currentContacts = this.contacts[pk] || [];
+        if(this.config.localContact){
+          const contactsStorage = this.loadContactsFromLocalStorage();
+          const newContacts = contactsStorage[pk];
+          this.contactsSub.next(newContacts);
         } else {
-          currentContacts = [];
+          this.getContacts(pk).subscribe({
+            next: cs => this.contactsSub.next(cs),
+            error: err => console.error(err)
+          });
         }
-        this.currentAcctContactsSub.next(currentContacts);
-       
-
-        // prepare update indexed messages 
-        this.currAcctIndexedMsgs = {};
 
         // listen to messages since now
         this.subCurrAcctMessages(sk, pk);
@@ -94,6 +124,93 @@ export class ChatService {
         
       })
   }
+
+  // NIP28
+  public createChannel() {
+    // TODO
+  }
+
+  public setChannelMetadata() {
+// TODO
+  }
+
+  public createChannelMessage() {
+// TODO
+  }
+
+  // NIP2
+  public updateContacts(contacts: Contact[]): Observable<void>{
+    if(!this.account){
+      return throwError(() => `no account set`);
+    }
+    const {pk, sk} = this.account;
+    const event = {
+      kind: 3,
+      tags: contacts.map(contact => ["p", contact.pk, contact.relay || "", contact.name]) as any,
+      content: "",
+      created_at: Math.round(Date.now() / 1000),
+      pubkey: pk
+    } as any;
+    event.id = getEventHash(event);
+    event.sig = signEvent(event, sk);
+    return this.relayPublish(event);
+  }
+
+  public getContacts(pk: string): Observable<Contact[] | null> {
+
+    const e2c = (e: Event) => {
+      return e.tags.map((arr: any) => {
+        return {
+          pk: arr[1],
+          relay: arr[2],
+          name: arr[3]
+        } as Contact
+      })
+    };
+
+    return this.relayList([{
+      kinds: [3],
+      authors: [pk]
+    }]).pipe(map(events => {
+      if(events.length == 0) {
+        return null;
+      } 
+      else if(events.length == 1){
+        return e2c(events[0])
+      }
+      else {
+        // choose the latest event
+        const latestEvent = events.sort((a, b) => b.created_at - a.created_at)[0];
+        return e2c(latestEvent)
+      }
+    }));
+  }
+
+  private relayPublish(event: Event): Observable<void> {
+    const pub = this.relay.publish(event);
+    
+    return new Observable(observer => {
+      pub.on("ok", ()=> {
+        observer.next();
+        observer.complete()
+      });
+      pub.on("failed", (err:any) => {
+        observer.error(err);
+        observer.complete()
+      });
+    });
+  }
+
+  private relayList(filters: Filter[]): Observable<Event[]> {
+    return from(this.relay.list(filters));
+  }
+
+  private handleLocalContactUpdate(account: Account, currentContacts: Contact[] | null){
+    const acctContSet = this.loadContactsFromLocalStorage();
+    acctContSet[account.pk] = currentContacts ? currentContacts : [];
+    this.saveContactsToLocalStorage(acctContSet);
+  }
+
 
   public loadMessagesUntil(sk: string, pk: string, fromPk:string, until: number, limit:number) {
     from(this.relay.list([
@@ -142,7 +259,7 @@ export class ChatService {
         content
       }, pk);
       } catch(err){
-        console.error("decrypt message error", event);
+        console.error("decrypt message error", event, err);
       }
       
   }
@@ -167,10 +284,11 @@ export class ChatService {
   }
 
   private onRecvNewMessage(msg: Message, currAcctPk:string) {
+    const directedMessages = this.directMessages || {};
     if(msg.fromPk == currAcctPk){
       // this is the message I sent
-      if(msg.toPk in this.currAcctIndexedMsgs!){
-        const msgs = this.currAcctIndexedMsgs![msg.toPk];
+      if(msg.toPk in directedMessages){
+        const msgs = directedMessages[msg.toPk];
         for (const m of msgs) {
           if(m.id == msg.id){
             return;
@@ -178,12 +296,12 @@ export class ChatService {
         }
         msgs.push(msg)
       } else {
-        this.currAcctIndexedMsgs![msg.toPk] = [msg];
+        directedMessages[msg.toPk] = [msg];
       }
     } else {
       // this is the message sent to me
-      if(msg.fromPk in this.currAcctIndexedMsgs!){
-        const msgs = this.currAcctIndexedMsgs![msg.fromPk];
+      if(msg.fromPk in directedMessages){
+        const msgs = directedMessages[msg.fromPk];
         for (const m of msgs) {
           if(m.id == msg.id){
             return;
@@ -191,28 +309,28 @@ export class ChatService {
         }
         msgs.push(msg)
       } else {
-        this.currAcctIndexedMsgs![msg.fromPk] = [msg];
+        directedMessages[msg.fromPk] = [msg];
       }
     }
     
 
     // recover contact if message sender or receiver is not in contacts
-    if(msg.fromPk != currAcctPk){
-      this.addContact(currAcctPk, msg.fromPk);
-    } else if(msg.toPk != currAcctPk){
-      this.addContact(currAcctPk, msg.toPk);
-    }
+    // if(msg.fromPk != currAcctPk){
+    //   this.addContact(currAcctPk, msg.fromPk);
+    // } else if(msg.toPk != currAcctPk){
+    //   this.addContact(currAcctPk, msg.toPk);
+    // }
 
     // notify
-    this.currAcctIndexedMsgsSub.next(this.currAcctIndexedMsgs)
+    this.directMessagesSub.next(directedMessages)
 
   }
 
-  updateCurrentAcct(sk: string, pk: string) {
-    this.currentAcctSub.next([sk, pk]);
+  updateAccount(sk: string, pk: string) {
+    this.accountSub.next({sk, pk});
   }
 
-  private loadContactsFromLocalStorage(): Record<string, string[]>  {
+  private loadContactsFromLocalStorage(): Record<string, Contact[]>  {
     const res = localStorage.getItem(CHAT_CONTACTS_LOCAL_STORAGE_KEY);
     if(res == null){
         return {};
@@ -220,7 +338,7 @@ export class ChatService {
     return JSON.parse(res);
   }
 
-  private saveContactsToLocalStorage(c: Record<string, string[]> | null) {
+  private saveContactsToLocalStorage(c: Record<string, Contact[]> | null) {
     if(!c){
       localStorage.removeItem(CHAT_CONTACTS_LOCAL_STORAGE_KEY);
       return;
@@ -229,25 +347,39 @@ export class ChatService {
     localStorage.setItem(CHAT_CONTACTS_LOCAL_STORAGE_KEY, val)
   }
 
-  addContact(from: string, to: string) {
-    
-    if (! (from in this.contacts)){
-      this.contacts[from] = [to];
+  addContact(pk:string, name?:string) {
+    if(!this.contacts){
+      this.contactsSub.next([{
+        pk,
+        name
+      }]);
+      return;
     } else {
-      for (const c of this.contacts[from]) {
-          if(c == to){
-            return;
-          }
+      if(this.contacts.find(contact => contact.pk == pk)){
+        return;
       }
-      this.contacts[from].push(to);
-    };
-    this.contactsSub.next(this.contacts);
+      this.contactsSub.next([...this.contacts, {pk, name}])
+    }
+  }
+
+  updateContactName(pk: string, name: string) {
+    if(!this.contacts){
+      return;
+    }
+    const c = this.contacts.find(contact => contact.pk == pk);
+    if(!c){
+      return;
+    }
+    c.name = name;
+    this.contactsSub.next([...this.contacts]);
   }
 
 
-  async sendDirectMessage(sk1:string, pk1:string, pk2:string, message:string): Promise<void> {
-      let ciphertext = await nip04.encrypt(sk1, pk2, message);
-      let event = {
+  sendDirectMessage(sk1:string, pk1:string, pk2:string, message:string): Observable<void> {
+    return from(nip04.encrypt(sk1, pk2, message))
+    .pipe(
+      concatMap(ciphertext => {
+        let event = {
           kind: 4,
           pubkey: pk1,
           tags: [['p', pk2]],
@@ -257,8 +389,8 @@ export class ChatService {
 
         event.id = getEventHash(event);
         event.sig = signEvent(event, sk1);
-        
-        this.relay.publish(event);
-        
+        return this.relayPublish(event)
+      })
+    )
   }
 }
