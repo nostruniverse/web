@@ -6,13 +6,13 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   <div *ngIf="!editing; else editingState" class="flex flex-row gap-2">
     <p class="">{{text}}</p>
     <button (click)="startEditing()" title="edit">
-        <i-feather name="edit" style="color: gray"></i-feather>
+       Edit
     </button>
   </div>
   <ng-template #editingState>
     <div class="flex flex-row gap-2">
         <input type="text" class="rounded-full border px-4 py-1">
-        <button (click)="finishEditing()"><i-feather name="check" style="color: gray"></i-feather></button>
+        <button (click)="finishEditing()">Done</button>
     </div>
     
   </ng-template>

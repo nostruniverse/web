@@ -1,19 +1,18 @@
 import { Component } from '@angular/core';
-import { generatePrivateKey, getPublicKey } from 'nostr-tools';
+
 import { Account } from './account';
 import { NostrAcctMgmtService } from './nostr-acct-mgmt.service';
-import { from } from 'rxjs';
+import { filter, from } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { AddExistingAcctDialog } from './add-existing-acct-dialog';
 
 @Component({
   selector: 'nw-nostr-acct-mgmt',
   template: `
   <div class="container mx-auto p-4">
-    <p *ngIf="isInExtension">Running in extension</p>
-    <p *ngIf="isExtensionRunning && !isInExtension">Extension is running</p>
-    <p *ngIf="!isExtensionRunning && !isInExtension">Extension is not running</p>
     <div class="flex flex-row gap-4 mb-4">
-      <button ui-button="primary" (click)="createAccount()">New</button>
-      <button ui-button="primary">Add existing</button>
+      <button mat-flat-button color="primary" (click)="createAccount()">New account</button>
+      <button mat-stroked-button (click)="addExistingAccount()">Add existing</button>
     </div>
    
 
@@ -39,13 +38,9 @@ import { from } from 'rxjs';
   </div>
 
   <ng-template #empty>
-  <div class="bg-blue-500 text-white font-semibold p-4 rounded-md">
-  <div class="flex items-center">
-    <div class="ml-3">
-      <p class="text-sm"> Create account or add your exising public key!</p>
-    </div>
+  <div class="text-gray-400  text-lg p-4 rounded-md text-center">
+    Create a new Nostr account or add your exising account!
   </div>
-</div>
    
   </ng-template>
   `,
@@ -56,7 +51,7 @@ export class NostrAcctMgmtComponent {
 
   isExtensionRunning!: boolean;
   isInExtension: boolean;
-  constructor(readonly acctMgmtSvc: NostrAcctMgmtService) {
+  constructor(readonly acctMgmtSvc: NostrAcctMgmtService, readonly dialog: MatDialog) {
     this.isInExtension = acctMgmtSvc.runInBrowserExtension();
     if(this.isInExtension){
       this.isExtensionRunning = true;
@@ -92,14 +87,19 @@ export class NostrAcctMgmtComponent {
   }
 
   createAccount() {
-    const prvk = generatePrivateKey();
-    const pubk = getPublicKey(prvk);
-    const account: Account = {
-      prvk,
-      pubk,
-      createdAt: Date.now()
-    };
-    this.acctMgmtSvc.addAccount(account);
+    this.acctMgmtSvc.createAccount();
+  }
+
+  addExistingAccount() {
+    this.dialog.open(AddExistingAcctDialog)
+    .afterClosed()
+    .pipe(
+      filter(res => res != null)
+    )
+    .subscribe(result => {
+       console.log(result);
+       this.acctMgmtSvc.addAccount(result);
+    })
   }
 
   removeAccount(pubk: string) {

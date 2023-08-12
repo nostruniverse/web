@@ -4,8 +4,7 @@ import {ClipboardModule} from '@angular/cdk/clipboard';
 import { EditableTextComponent } from './components/editable-text.component';
 import { BriefTextComponent } from './components/brief-text.component';
 import { CommonModule } from '@angular/common';
-import { FeatherModule } from 'angular-feather';
-import { Edit, Check } from 'angular-feather/icons';
+import { MaterialModule } from './material.module';
 
 
 @NgModule({
@@ -17,12 +16,13 @@ import { Edit, Check } from 'angular-feather/icons';
   imports: [
     CommonModule,
     ClipboardModule,
-    FeatherModule.pick({Edit, Check})
+    MaterialModule
   ],
   exports: [
     Button,
     EditableTextComponent,
-    BriefTextComponent
+    BriefTextComponent,
+    MaterialModule
   ]
 })
 export class UiModule { }

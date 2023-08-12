@@ -3,17 +3,21 @@ import { NostrAcctMgmtComponent } from './nostr-acct-mgmt.component';
 import { NostrAcctCard } from './nostr-acct-card.component';
 import { CommonModule } from '@angular/common';
 import { UiModule } from 'ui';
+import { AddExistingAcctDialog } from './add-existing-acct-dialog';
+import { FormsModule } from '@angular/forms';
 
 
 
 @NgModule({
   declarations: [
     NostrAcctMgmtComponent,
-    NostrAcctCard
+    NostrAcctCard,
+    AddExistingAcctDialog
   ],
   imports: [
     CommonModule,
-    UiModule
+    UiModule,
+    FormsModule
   ],
   exports: [
     NostrAcctMgmtComponent

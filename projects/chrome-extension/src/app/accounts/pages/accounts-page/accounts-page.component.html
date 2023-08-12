@@ -1,0 +1,41 @@
+<mat-tab-group [selectedIndex]="selectedIndex" animationDuration="5ms">
+    <mat-tab label="Selected">
+        <ng-container *ngIf="selectedAccount$ | async as selectedAccount; else noSelectedAccount">
+            <div class="p-4">
+                <mat-card>
+                    <mat-card-content>
+                        <div class=" p-4 flex flex-col gap-2 items-stretch">
+    
+                            <div class="flex flex-row justify-between items-center">
+                                <h5 class="font-medium text-sm">Public key</h5>
+                                <ui-brief-text [text]="selectedAccount.pubk"></ui-brief-text>
+                            </div>
+    
+                            <div class="flex flex-row justify-between items-center">
+                                <h5 class="font-medium text-sm">Private key</h5>
+                                <ui-brief-text [text]="selectedAccount.prvk!"></ui-brief-text>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+            
+        </ng-container>
+
+    </mat-tab>
+    <mat-tab label="Accounts">
+        <nw-nostr-acct-mgmt></nw-nostr-acct-mgmt>
+    </mat-tab>
+</mat-tab-group>
+
+<ng-template #noSelectedAccount>
+    <div class="flex flex-col items-center gap-4 p-4">
+        <button mat-flat-button color="primary" (click)="selectedIndex = 1">Go to accounts</button>
+        <div class="text-gray-400  text-lg text-center">
+            Create a new Nostr account or add your exising account!
+        </div>
+
+    </div>
+
+
+</ng-template>

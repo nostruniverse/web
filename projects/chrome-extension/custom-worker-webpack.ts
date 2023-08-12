@@ -1,5 +1,14 @@
 import type { Configuration } from 'webpack';
 
 module.exports = {
-  entry: { background: 'projects/chrome-extension/src/worker.ts' },
+  entry: { 
+    background: {
+      import: 'projects/chrome-extension/src/worker.ts',
+      runtime: false
+    },
+    content: {
+      import: 'projects/chrome-extension/src/content.ts',
+      runtime: false
+    }
+  },
 } as Configuration;

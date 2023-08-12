@@ -115,8 +115,11 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
+            "customWebpackConfig": {
+              "path":"./projects/chrome-extension/custom-worker-webpack.ts"
+            },
             "outputPath": "dist/chrome-extension",
             "index": "projects/chrome-extension/src/index.html",
             "main": "projects/chrome-extension/src/main.ts",
@@ -128,9 +131,7 @@
             "assets": [
               "projects/chrome-extension/src/favicon.ico",
               "projects/chrome-extension/src/assets",
-              "projects/chrome-extension/src/manifest.json",
-              "projects/chrome-extension/src/content.js",
-              "projects/chrome-extension/src/worker.js"
+              "projects/chrome-extension/src/manifest.json"
             ],
             "styles": [
               "projects/chrome-extension/src/styles.scss"
@@ -151,7 +152,7 @@
                   "maximumError": "4kb"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "none"
             },
             "development": {
               "buildOptimizer": false,

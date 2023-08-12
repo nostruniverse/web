@@ -11,29 +11,29 @@ import { Account } from "./account";
        }">
       
        <div class="flex flex-row justify-between items-center">
-          <h5 class="font-medium ">Public key</h5>
+          <h5 class="font-medium text-sm">Public key</h5>
           <ui-brief-text [text]="account.pubk"></ui-brief-text>
        </div>
       
        <div class="flex flex-row justify-between items-center">
-          <h5 class="font-medium ">Private key</h5>
+          <h5 class="font-medium text-sm">Private key</h5>
           <ui-brief-text [text]="account.prvk!"></ui-brief-text>
        </div>
 
-       <div class="flex flex-row justify-between items-center">
-          <h5 class="font-medium ">Internet Identifier</h5>
+       <!-- <div class="flex flex-row justify-between items-center">
+          <h5 class="font-medium text-sm">Internet Identifier</h5>
           <ui-editable-text [text]="account.id!"></ui-editable-text>
        </div>
 
        <div class="flex flex-row justify-between items-center">
-          <h5 class="font-medium ">Name</h5>
+          <h5 class="font-medium text-sm">Name</h5>
           <ui-editable-text [text]="account.name!"></ui-editable-text>
-       </div>
+       </div> -->
       
 
       <div class="flex flex-col items-stretch gap-2 border-t">
-        <button *ngIf="!isSelected" ui-button="primary" (click)="select.next()">Set as default</button>
-        <button ui-button="warning" (click)="remove.next()">Remove</button>
+        <button *ngIf="!isSelected" mat-flat-button color="primary" (click)="select.next()">Select</button>
+        <button mat-flat-button color="warning" (click)="remove.next()">Remove</button>
       </div>
       
     </div>

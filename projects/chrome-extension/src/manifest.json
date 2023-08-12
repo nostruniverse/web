@@ -9,10 +9,11 @@
       "default_popup": "index.html"
     },
     "background": {
-        "service_worker": "worker.js"
+        "service_worker": "background.js",
+        "type": "module"
     },
     "content_scripts": [{
-        "matches":["https://nostrworld.app/*", "http://localhost/*"],
+        "matches":["http://*/*", "https://*/*"],
         "js":["content.js"]
     }],
     "externally_connectable": {

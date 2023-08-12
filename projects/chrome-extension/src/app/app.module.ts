@@ -3,16 +3,23 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NostrAcctMgmtModule } from 'nostr-acct-mgmt';
+import { NavigationComponent } from './navigation/navigation.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { UiModule } from 'ui';
+import { RouterModule } from '@angular/router';
+
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    NavigationComponent
   ],
   imports: [
     BrowserModule,
+    RouterModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
-    NostrAcctMgmtModule
+    UiModule
   ],
   providers: [],
   bootstrap: [AppComponent]
