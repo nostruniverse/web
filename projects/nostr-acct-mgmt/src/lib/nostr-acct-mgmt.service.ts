@@ -51,7 +51,6 @@ export class NostrAcctMgmtService {
     this.accountStorageSub = new BehaviorSubject(null as any);
     this.accountStorage$ = this.accountStorageSub.asObservable();
 
-    console.log("initializing NostrAcctMgmtService")
     from(this.isBrowserExtensionRunning())
       .pipe(catchError(err => {
         console.error(err)

@@ -1,3 +1,4 @@
+import { Relay, getEventHash, nip04, relayInit, signEvent, Sub, Event, UnsignedEvent, Filter } from 'nostr-tools';
 
 const ACCOUNT_STORAGE_LOCALSTORAGE_KEY = "acct_storage"
 const SELECTED_ACCOUNT_LOCALSTORAGE_KEY = "acct_selected"
@@ -22,6 +23,49 @@ function newWorkerResponse<T = any>(success: boolean, data?: T): WorkerResponse<
         success,
         data
     }
+}
+
+const requestIdDispatcher = {
+    "nw.nip07.getPublicKey" : async (request:any) => {
+        const result = await chrome.storage.local.get([SELECTED_ACCOUNT_LOCALSTORAGE_KEY]);
+        const acct = result[SELECTED_ACCOUNT_LOCALSTORAGE_KEY];
+        return newWorkerResponse(true, acct.pubk)
+    },
+    "nw.nip07.signEvent": async (request:any) =>  {
+        const result = await chrome.storage.local.get([SELECTED_ACCOUNT_LOCALSTORAGE_KEY]);
+        const acct = result[SELECTED_ACCOUNT_LOCALSTORAGE_KEY];
+        const pubk = acct.pubk;
+        if(!acct.prvk){
+            throw new Error("missing private key");
+        }
+        const event = request.data;
+        event.pubkey = pubk;
+        event.id = getEventHash(event);
+        event.sig = signEvent(event, acct.prvk);
+        return newWorkerResponse(true, event)
+    },
+    "nw.nip07.getRelays":async (request:any) => {
+        // TODO
+        return newWorkerResponse(true, [])
+    },
+    "nw.nip04.encrypt":async (request:any) => {
+        const result = await chrome.storage.local.get([SELECTED_ACCOUNT_LOCALSTORAGE_KEY]);
+        const acct = result[SELECTED_ACCOUNT_LOCALSTORAGE_KEY];
+        if(!acct.prvk){
+            throw new Error("missing private key");
+        }
+        const cipherText = nip04.encrypt(acct.prvk, request.data.pk, request.data.plainText)
+        return newWorkerResponse(true, cipherText)
+    },
+    "nw.nip04.decrypt":async (request:any) => {
+        const result = await chrome.storage.local.get([SELECTED_ACCOUNT_LOCALSTORAGE_KEY]);
+        const acct = result[SELECTED_ACCOUNT_LOCALSTORAGE_KEY];
+        if(!acct.prvk){
+            throw new Error("missing private key");
+        }
+        const plainText = nip04.decrypt(acct.prvk, request.data.pk, request.data.cipherText)
+        return newWorkerResponse(true, plainText)
+    },
 }
 
 async function messageHandler(request:any, sender:any, sendResponse:any) {
@@ -51,8 +95,13 @@ async function messageHandler(request:any, sender:any, sendResponse:any) {
         return sendResponse(newWorkerResponse(true, acctStorage))
     } else if(request.id == "nw-extension-get-selected-acct") {
         const result = await chrome.storage.local.get([SELECTED_ACCOUNT_LOCALSTORAGE_KEY]);
-        const acct = result[SELECTED_ACCOUNT_LOCALSTORAGE_KEY] || {};
+        const acct = result[SELECTED_ACCOUNT_LOCALSTORAGE_KEY];
         return sendResponse(newWorkerResponse(true, acct))
+    } else if( request.id in requestIdDispatcher) {
+        const res = await (requestIdDispatcher as any)[request.id](request);
+        return sendResponse(res)
+    } else {
+        sendResponse(newWorkerResponse(false));
     }
 }
 
