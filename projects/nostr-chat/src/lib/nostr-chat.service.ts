@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { Relay, getEventHash, nip04, relayInit, signEvent, Sub, Event, UnsignedEvent, Filter } from 'nostr-tools';
-import { BehaviorSubject, Observable, Subject, concatMap, debounceTime, distinctUntilChanged, from, map, mergeMap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, concatMap, debounceTime, distinctUntilChanged, from, map, mergeMap, switchMap, throwError } from 'rxjs';
 import { Message } from './message';
 import { Contact } from './contact';
 
@@ -27,6 +27,7 @@ export class ChatService {
 
   private relay: Relay;
   private currAcctRelaySubscription: Sub | null = null;
+  private nip07Mode = false;
 
   // current account
   private accountSub = new BehaviorSubject<Account | null>(null);
@@ -57,6 +58,7 @@ export class ChatService {
   get directMessages(): Record<string, Message[]> | null {
     return this.directMessagesSub.getValue();
   }
+
 
 
   constructor(@Inject(CHAT_SERVICE_CONFIG) private readonly config: ChatServiceConfig) {
@@ -123,6 +125,10 @@ export class ChatService {
 
         
       })
+  }
+
+  setNip07Mode(onOrOff: boolean) {
+    this.nip07Mode = onOrOff;
   }
 
   // NIP28
@@ -375,7 +381,49 @@ export class ChatService {
   }
 
 
-  sendDirectMessage(sk1:string, pk1:string, pk2:string, message:string): Observable<void> {
+  sendDirectMessage(sk1:string | null, pk1:string | null, pk2:string, message:string): Observable<void> {
+    if(!pk2){
+      return throwError(()=>`missing receiver's public key`);
+    }
+
+    if(this.nip07Mode){
+      // If in nip07 mode, we are going to encrypt message by using windows.nostr.nip04.encrypt
+      const encryptFunc = (window as any).nostr?.nip04?.encrypt;
+      const signEventFunc = (window as any).nostr?.signEvent;
+      if(!encryptFunc){
+        return throwError(() => "missing 'window.nostr.nip04.encrypt', check NIP-07 provider");
+      }
+      if(!signEventFunc){
+        return throwError(() => "missing 'window.nostr.signEvent', check NIP-07 provider");
+      }
+      return from(encryptFunc(pk2, message))
+      .pipe(
+        concatMap(ciphertext => {
+          let event = {
+            kind: 4,
+            tags: [['p', pk2]],
+            content: ciphertext,
+            created_at: Math.floor(Date.now() / 1000)
+          } as any;
+          
+          return from(signEventFunc(event));
+        }),
+        concatMap((event) => {
+          return this.relayPublish(event as any)
+        })
+      )
+
+    }
+
+    // if not in nip07 mode, then sk1 and pk1 are necessary
+    if(!sk1){
+      return throwError(()=> `missing sender's public key`)
+    }
+
+    if(!pk1) {
+      return throwError(()=> `missing sender's private key`)
+    }
+
     return from(nip04.encrypt(sk1, pk2, message))
     .pipe(
       concatMap(ciphertext => {
