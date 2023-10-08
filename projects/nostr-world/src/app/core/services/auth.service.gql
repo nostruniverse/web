@@ -1,0 +1,16 @@
+query SignInByNostr($signedEvent: String!) {
+    signInByNostr(request: {signedEvent: $signedEvent} ) {
+        bearerToken
+        refreshToken
+        expiredAt
+    }
+  }
+query GetMe {
+  getUser(request: {}) {
+    user {
+      id
+      name
+      avatarUrl
+    }
+  }
+}

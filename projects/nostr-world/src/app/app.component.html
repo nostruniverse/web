@@ -1,2 +1,60 @@
-<app-navbar></app-navbar>
-<router-outlet></router-outlet>
+<mat-sidenav-container class="sidenav-container">
+    <mat-sidenav
+      #drawer
+      class="sidenav"
+      fixedInViewport
+      [mode]="(isHandset$ | async) ? 'over' : 'side'"
+      [opened]="(isHandset$ | async) === false"
+    >
+      <mat-toolbar>
+        <span routerLink="" class="text-center w-full cursor-pointer"
+          >Secrets</span
+        >
+      </mat-toolbar>
+  
+      <!-- <div class="w-full flex flex-col items-center gap-4 mb-4">
+        <img class="h-12 w-12 rounded-full" [src]="user.avatarUrl"/>
+        <div class="font-medium">{{ user.name }}</div>
+      </div> -->
+  
+      <ul class="flex flex-col items-stretch">
+        <a
+          class="hover:bg-gray-50 p-4 cursor-pointer"
+          routerLink="/"
+          routerLinkActive="bg-gray-100"
+          [routerLinkActiveOptions]="{ exact: true }"
+          >Home</a
+        >
+  
+        <a
+          *ngIf="user$ | async"
+          class="bg-red-500	 text-white hover:bg-red-600	 p-4 cursor-pointer"
+          (click)="signOut()"
+          >Sign out</a>
+      </ul>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <mat-toolbar color="primary" class="gap-4">
+        <ng-container *ngIf="isHandset$ | async">
+          <button
+            type="button"
+            aria-label="Toggle sidenav"
+            mat-icon-button
+            (click)="drawer.toggle()"
+          >
+            <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+          </button>
+          <span routerLink="">Secrets</span>
+  
+        </ng-container>
+        <span class="flex-auto"></span>
+        <button *ngIf="!(user$ | async)" mat-flat-button color="primary"
+        routerLink="auth"
+        
+        >Sign in</button>
+      </mat-toolbar>
+  
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+  

@@ -6,10 +6,35 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  showPopup: boolean = false;
+  @ViewChild('drawer') drawer!: MatSidenav;
 
-  constructor(){
+
+  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
+    .pipe(
+      map(result => result.matches),
+      shareReplay()
+    );
+    
+  user$ = this.authSvc.user$;
+
+  constructor(
+    protected authSvc: AuthService,
+    private router: Router,
+    private breakpointObserver: BreakpointObserver
+    ){
+
+      router.events.pipe(
+        withLatestFrom(this.isHandset$),
+        filter(([a, b]) => b && (a instanceof NavigationEnd || a instanceof NavigationSkipped))
+      ).subscribe(_ => this.drawer?.close());
+
+  }
+  ngOnInit(): void {
    
+  }
+
+  signOut(){
+    this.authSvc.signOut();
   }
 
 
