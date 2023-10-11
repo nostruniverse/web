@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "nostr-world": {
+    "nostr-world-apps": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -11,26 +11,26 @@
         }
       },
       "root": "",
-      "sourceRoot": "projects/nostr-world/src",
+      "sourceRoot": "projects/nostr-world-apps/src",
       "prefix": "nw",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/nostr-world",
-            "index": "projects/nostr-world/src/index.html",
-            "main": "projects/nostr-world/src/main.ts",
+            "outputPath": "dist/nostr-world-apps",
+            "index": "projects/nostr-world-apps/src/index.html",
+            "main": "projects/nostr-world-apps/src/main.ts",
             "polyfills": [
               "zone.js"
             ],
-            "tsConfig": "projects/nostr-world/tsconfig.app.json",
+            "tsConfig": "projects/nostr-world-apps/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              "projects/nostr-world/src/favicon.ico",
-              "projects/nostr-world/src/assets"
+              "projects/nostr-world-apps/src/favicon.ico",
+              "projects/nostr-world-apps/src/assets"
             ],
             "styles": [
-              "projects/nostr-world/src/styles.scss"
+              "projects/nostr-world-apps/src/styles.scss"
             ],
             "scripts": []
           },
@@ -65,10 +65,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "nostr-world:build:production"
+              "browserTarget": "nostr-world-apps:build:production"
             },
             "development": {
-              "browserTarget": "nostr-world:build:development"
+              "browserTarget": "nostr-world-apps:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -76,7 +76,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "nostr-world:build"
+            "browserTarget": "nostr-world-apps:build"
           }
         },
         "test": {
@@ -86,14 +86,14 @@
               "zone.js",
               "zone.js/testing"
             ],
-            "tsConfig": "projects/nostr-world/tsconfig.spec.json",
+            "tsConfig": "projects/nostr-world-apps/tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              "projects/nostr-world/src/favicon.ico",
-              "projects/nostr-world/src/assets"
+              "projects/nostr-world-apps/src/favicon.ico",
+              "projects/nostr-world-apps/src/assets"
             ],
             "styles": [
-              "projects/nostr-world/src/styles.scss"
+              "projects/nostr-world-apps/src/styles.scss"
             ],
             "scripts": []
           }
@@ -270,23 +270,23 @@
         }
       }
     },
-    "ui": {
+    "shared": {
       "projectType": "library",
-      "root": "projects/ui",
-      "sourceRoot": "projects/ui/src",
+      "root": "projects/shared",
+      "sourceRoot": "projects/shared/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "projects/ui/ng-package.json"
+            "project": "projects/shared/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/ui/tsconfig.lib.prod.json"
+              "tsConfig": "projects/shared/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/ui/tsconfig.lib.json"
+              "tsConfig": "projects/shared/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -294,7 +294,7 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "tsConfig": "projects/ui/tsconfig.spec.json",
+            "tsConfig": "projects/shared/tsconfig.spec.json",
             "polyfills": [
               "zone.js",
               "zone.js/testing"

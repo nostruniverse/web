@@ -8,6 +8,7 @@ import { CHAT_SERVICE_CONFIG, ChatServiceConfig, NostrChatModule } from 'nostr-c
 import { UiModule } from 'ui';
 import { ChatPageComponent } from './chat-page.component';
 import { CommonModule } from '@angular/common';
+import { HomeComponent } from './app/browser-sync/components/home/home.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { CommonModule } from '@angular/common';
     AppsListComponent,
     MenuItem,
     AppInfoCard,
-    ChatPageComponent
+    ChatPageComponent,
+    HomeComponent
   ],
   imports: [
     CommonModule,

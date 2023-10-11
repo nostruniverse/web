@@ -1,0 +1,38 @@
+
+.background-1 {
+    background-color:#556;
+    background-image: linear-gradient(30deg, #445 12%, transparent 12.5%, transparent 87%, #445 87.5%, #445),
+    linear-gradient(150deg, #445 12%, transparent 12.5%, transparent 87%, #445 87.5%, #445),
+    linear-gradient(30deg, #445 12%, transparent 12.5%, transparent 87%, #445 87.5%, #445),
+    linear-gradient(150deg, #445 12%, transparent 12.5%, transparent 87%, #445 87.5%, #445),
+    linear-gradient(60deg, #99a 25%, transparent 25.5%, transparent 75%, #99a 75%, #99a), 
+    linear-gradient(60deg, #99a 25%, transparent 25.5%, transparent 75%, #99a 75%, #99a);
+    background-size:80px 140px;
+    background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+}
+
+.background-2 {
+    background-color: #7a9c7e;
+    background-image: 
+        linear-gradient(30deg, #689672 12%, transparent 12.5%, transparent 87%, #689672 87.5%, #689672),
+        linear-gradient(150deg, #689672 12%, transparent 12.5%, transparent 87%, #689672 87.5%, #689672),
+        linear-gradient(30deg, #689672 12%, transparent 12.5%, transparent 87%, #689672 87.5%, #689672),
+        linear-gradient(150deg, #689672 12%, transparent 12.5%, transparent 87%, #689672 87.5%, #689672),
+        linear-gradient(60deg, #85ac8a 25%, transparent 25.5%, transparent 75%, #85ac8a 75%, #85ac8a), 
+        linear-gradient(60deg, #85ac8a 25%, transparent 25.5%, transparent 75%, #85ac8a 75%, #85ac8a);
+    background-size: 80px 140px;
+    background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+}
+
+.background-3 {
+    background-color: #b57a91;
+    background-image: 
+        linear-gradient(30deg, #a46882 12%, transparent 12.5%, transparent 87%, #a46882 87.5%, #a46882),
+        linear-gradient(150deg, #a46882 12%, transparent 12.5%, transparent 87%, #a46882 87.5%, #a46882),
+        linear-gradient(30deg, #a46882 12%, transparent 12.5%, transparent 87%, #a46882 87.5%, #a46882),
+        linear-gradient(150deg, #a46882 12%, transparent 12.5%, transparent 87%, #a46882 87.5%, #a46882),
+        linear-gradient(60deg, #bd8ca2 25%, transparent 25.5%, transparent 75%, #bd8ca2 75%, #bd8ca2), 
+        linear-gradient(60deg, #bd8ca2 25%, transparent 25.5%, transparent 75%, #bd8ca2 75%, #bd8ca2);
+    background-size: 80px 140px;
+    background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+}

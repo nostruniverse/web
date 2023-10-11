@@ -1,0 +1,29 @@
+<div class="w-full h-full flex flex-col align-stretch divide-y">
+    <div class="p-8 text-2xl">
+        How would you like your Nostr account(s) to store or fetch?<br/>
+        <span class="font-light	text-sm">You can always switch among them at anytime.</span>
+    </div>
+    <div class="flex-1 cursor-pointer p-4 background-1" (click)="chooseMode(ExtensionMode.NostrWorldSync)">
+        <h1 class="text-3xl text-white	">
+            Nostr World
+        </h1>
+        <div class="text-white font-medium">
+            The data is securely managed by nostrworld.xyz and without platform or brower limitation.
+        </div>
+    </div>
+    <div class="flex-1 cursor-pointer p-4 background-2" (click)="chooseMode(ExtensionMode.BrowserSync)">
+        <h1 class="text-3xl text-white	">
+            Browser Sync
+        </h1>
+        <div class="text-white font-medium">The data is synced to any browser that the same user is logged into</div>
+    </div>
+    <div class="flex-1 cursor-pointer p-4 background-3" (click)="chooseMode(ExtensionMode.Local)">
+        <h1 class="text-3xl text-white	">
+            Local Only
+
+        </h1>
+
+        
+        <div class="text-white font-medium">Data is stored locally and cleared when the extension is removed</div>
+    </div>
+</div>

@@ -24,8 +24,8 @@
       "nostr-chat": [
         "dist/nostr-chat"
       ],
-      "ui": [
-        "dist/ui"
+      "shared": [
+        "dist/shared"
       ]
     },
     "moduleResolution": "node",

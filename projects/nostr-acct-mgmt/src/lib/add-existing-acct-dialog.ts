@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { MatDialogRef } from "@angular/material/dialog";
 import { Account } from "./account";
-import { NotificationService } from "ui";
+import { NotificationService } from "shared";
 
 @Component({
     selector: 'add-existing-acct-dialog',

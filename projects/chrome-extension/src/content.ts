@@ -1,5 +1,5 @@
 declare const browser:any;
-declare const chrome:any;
+
 
 let runtime:any = (typeof browser != "undefined" ? browser : chrome).runtime
 
