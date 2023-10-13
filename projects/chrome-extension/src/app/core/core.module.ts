@@ -1,12 +1,21 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ModeChooserComponent } from './components/mode-chooser/mode-chooser.component';
+import { NavigationComponent } from './components/navigation/navigation.component';
+import { SharedModule } from '../shared/shared.module';
 
 
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    ModeChooserComponent,
+    NavigationComponent
+  ],
   imports: [
-    CommonModule
+    SharedModule
+  ],
+  exports: [
+    ModeChooserComponent,
+    NavigationComponent
   ]
 })
 export class CoreModule { }

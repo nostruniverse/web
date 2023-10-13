@@ -1,0 +1,14 @@
+<div class="flex flex-col items-stretch" *ngIf="contacts && contacts.length > 0; else noRooms">
+    <app-chat-room
+    *ngFor="let contact of contacts"
+     [contact]="contact"
+     [selected]="selectedContact == contact"
+     (select)="selectRoom($event)"
+   ></app-chat-room>
+    
+</div>
+<ng-template #noRooms>
+  <div class="text-center">
+    No contacts yet
+  </div>
+</ng-template>

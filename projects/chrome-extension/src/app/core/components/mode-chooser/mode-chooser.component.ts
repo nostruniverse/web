@@ -19,7 +19,7 @@ export class ModeChooserComponent {
     this.configService.setExtensionMode(mode)
     .subscribe({
       next: () => {
-        this.router.navigate(["/"], {onSameUrlNavigation: "reload"})
+        this.router.navigate([], {onSameUrlNavigation: "reload"})
       },
       error: err => this.notification.error(err)
     })

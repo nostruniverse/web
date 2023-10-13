@@ -1,0 +1,3 @@
+<cdk-virtual-scroll-viewport #viewport itemSize="73" class="messages-wrapper">
+    <app-message *cdkVirtualFor="let msg of data.messages" [msg]="msg" [isMe]="msg.fromPk == data.meId"></app-message>
+</cdk-virtual-scroll-viewport>

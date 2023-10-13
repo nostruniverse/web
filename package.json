@@ -6,7 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "build:chrome-extension": "ng build ui && ng build nostr-chat && ng build nostr-acct-mgmt && ng build chrome-extension",
-    "dev:chrome-extension": "npm run watch-shared & npm run watch-acct-mgmt & ng build chrome-extension --configuration=development --watch",
+    "dev:chrome-extension": "npm run watch-shared && npm run watch-acct-mgmt && ng build chrome-extension --configuration=development --watch",
     "dev:nostr-world-apps": "npm run watch-shared & npm run watch-chat & npm serve nostr-world-apps",
     "gh-page": "ng deploy nostr-world --cname nostrworld.app",
     "watch": "ng build --watch --configuration development",

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { Relay, getEventHash, nip04, relayInit, signEvent, Sub, Event, UnsignedEvent, Filter } from 'nostr-tools';
+import { Relay, getEventHash, nip04, relayInit, signEvent, Sub, Event, UnsignedEvent, Filter, getSignature, finishEvent, EventTemplate } from 'nostr-tools';
 import { BehaviorSubject, Observable, Subject, concatMap, debounceTime, distinctUntilChanged, from, map, mergeMap, throwError } from 'rxjs';
 import { Message } from './message';
 import { Contact } from './contact';
@@ -23,7 +23,7 @@ export interface Account {
 
 
 @Injectable()
-export class ChatService {
+export class NostrChatService {
 
   private relay: Relay;
   private currAcctRelaySubscription: Sub | null = null;
@@ -144,16 +144,15 @@ export class ChatService {
       return throwError(() => `no account set`);
     }
     const {pk, sk} = this.account;
-    const event = {
+    const event:EventTemplate<3> = {
       kind: 3,
       tags: contacts.map(contact => ["p", contact.pk, contact.relay || "", contact.name]) as any,
       content: "",
-      created_at: Math.round(Date.now() / 1000),
-      pubkey: pk
-    } as any;
-    event.id = getEventHash(event);
-    event.sig = signEvent(event, sk);
-    return this.relayPublish(event);
+      created_at: Math.round(Date.now() / 1000)
+    };
+    const finishedEvent = finishEvent(event, sk);
+   
+    return this.relayPublish(finishedEvent);
   }
 
   public getContacts(pk: string): Observable<Contact[] | null> {
@@ -187,18 +186,7 @@ export class ChatService {
   }
 
   private relayPublish(event: Event): Observable<void> {
-    const pub = this.relay.publish(event);
-    
-    return new Observable(observer => {
-      pub.on("ok", ()=> {
-        observer.next();
-        observer.complete()
-      });
-      pub.on("failed", (err:any) => {
-        observer.error(err);
-        observer.complete()
-      });
-    });
+    return from(this.relay.publish(event));
   }
 
   private relayList(filters: Filter[]): Observable<Event[]> {
@@ -212,7 +200,8 @@ export class ChatService {
   }
 
 
-  public loadMessagesUntil(sk: string, pk: string, fromPk:string, until: number, limit:number) {
+
+  private loadMessagesUntil(sk: string, pk: string, fromPk:string, until: number, limit:number) {
     from(this.relay.list([
       {
         kinds: [4],

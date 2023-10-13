@@ -107,19 +107,6 @@ export class NostrAcctMgmtService {
             });
 
           }
-
-
-
-
-          // if running inside of browser extension, 
-          // listen to storage or account selection update event
-          if (this.runInBrowserExtension()) {
-
-            storage.onChanged.addListener((data: any) => {
-              console.log("data", data)
-            })
-          }
-
         }
       })
 

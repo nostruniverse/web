@@ -1,0 +1,20 @@
+<div class="p-4 h-100 flex flex-col">
+    <mat-toolbar>
+        <button mat-icon-button aria-label="menu button" (click)="drawer.toggle()">
+            <mat-icon>menu</mat-icon>
+        </button>
+        <button mat-icon-button aria-label="create button" (click)="openCreateChatroomDialog()">
+            <mat-icon>add</mat-icon>
+        </button>
+    </mat-toolbar>
+    <mat-drawer-container autosize>
+        <mat-drawer #drawer class="w-32" mode="side" [opened]="sidenavOpen">
+            <app-chat-rooms [contacts]="(chatSvc.contacts$  | async) || []"></app-chat-rooms>
+        </mat-drawer>
+
+        <div class="h-96 bg-gray-100">
+            <router-outlet></router-outlet>
+        </div>
+
+    </mat-drawer-container>
+</div>

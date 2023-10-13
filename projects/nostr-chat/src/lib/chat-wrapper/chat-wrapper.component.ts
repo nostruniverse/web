@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { Contact } from '../contact';
-import { ChatService } from '../nostr-chat.service';
+import { NostrChatService } from '../nostr-chat.service';
 import { BehaviorSubject, Observable, combineLatest, combineLatestAll, combineLatestWith, map, of } from 'rxjs';
 import { Message } from '../message';
 import { DIALOG_DATA, Dialog, DialogRef } from '@angular/cdk/dialog';
 import { FormsModule } from '@angular/forms';
-import { UiModule } from 'ui';
+import { UiModule } from 'shared';
 
 
 export interface NostrAccount {
@@ -67,10 +67,7 @@ export class NostrAccountDialog {
   constructor(public dialogRef: DialogRef<NostrAccount>, @Inject(DIALOG_DATA) public data:NostrAccount) {}
 }
 
-export interface ChatWrapperNotification {
-  level: "error" | "info",
-  content: string;
-}
+
 
 @Component({
   selector: 'chat-wrapper',
@@ -102,7 +99,7 @@ export class ChatWrapperComponent implements OnInit, OnChanges  {
 
   numberOfMessagesPerLoad = 5;
 
-  constructor( readonly chatSvc: ChatService, private readonly dialog: Dialog){
+  constructor( readonly chatSvc: NostrChatService, private readonly dialog: Dialog){
 
  
   }

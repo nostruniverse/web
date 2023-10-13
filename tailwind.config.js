@@ -1,11 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./projects/nostr-world/src/**/*.{html,ts}",
+    "./projects/nostr-world-apps/src/**/*.{html,ts}",
     "./projects/chrome-extension/src/**/*.{html,ts}",
     "./projects/nostr-acct-mgmt/src/**/*.{html,ts}",
     "./projects/nostr-chat/src/**/*.{html,ts}",
-    "./projects/ui/src/**/*.{html,ts}"
+    "./projects/shared/src/**/*.{html,ts}"
   ],
   theme: {
     extend: {

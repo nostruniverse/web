@@ -1,0 +1,22 @@
+<div *ngIf="chateeId; else noRoomId" class="chat-wrapper">
+    <div class="messages">
+        <app-messages [data]="(data | async)!"></app-messages>
+    </div>
+
+    <div class="input-area">
+        <mat-form-field class="input-field">
+            <mat-label>Type your message here...</mat-label>
+            <input matInput type="text" [(ngModel)]="msg">
+            <button *ngIf="msg" matSuffix mat-icon-button aria-label="Clear" (click)="msg=''">
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-form-field>
+        <button mat-flat-button color="primary" (click)="send()">Send</button>
+    </div>
+    
+</div>
+<ng-template #noRoomId>
+    <div class="text-center">
+        Select a contact to start chatting!
+    </div>
+</ng-template>

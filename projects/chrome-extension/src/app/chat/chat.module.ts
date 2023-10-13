@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from 'shared';
+import { ChatRoutingModule } from './chat-routing.module';
 
 
 
@@ -9,11 +9,10 @@ import { MaterialModule } from 'shared';
   ],
   imports: [
     CommonModule,
-    MaterialModule
+    ChatRoutingModule
   ],
-  exports: [
-    CommonModule,
-    MaterialModule
-  ]
+  providers: []
+  
+  
 })
-export class SharedModule { }
+export class ChatModule { }

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs/internal/Observable";
-import { from, iif, lastValueFrom, map, withLatestFrom, combineLatest, tap } from "rxjs";
+import { from, iif, lastValueFrom, map, withLatestFrom, combineLatest, tap, BehaviorSubject } from "rxjs";
 
 export enum ExtensionMode {
     BrowserSync,
@@ -20,6 +20,28 @@ export interface ExtensionConfiguration {
     providedIn: "root"
 })
 export class ConfigService {
+
+    private changeSubject = new BehaviorSubject<ExtensionConfiguration | null>(null);
+    change$: Observable<ExtensionConfiguration | null> = this.changeSubject.asObservable();
+
+    constructor() {
+        chrome.storage.onChanged.addListener((changes, area) => {
+            const newValueChange = Object.keys(changes).reduce((prev, key) => {
+                prev[key] = changes[key].newValue;
+                return prev
+            }, {} as Record<string, any>)
+            this.changeSubject.next(newValueChange);
+        })
+
+        this.get({
+            extensionMode: null
+        } as ExtensionConfiguration)
+        .subscribe({
+            next: res => {
+                this.changeSubject.next(res);
+            }
+        })
+    }
 
     private get(keys: string | string[] | Record<string, any>): Observable<Record<string, any>> {
         return combineLatest([chrome.storage.sync.get(keys), chrome.storage.local.get(keys)])
@@ -65,4 +87,5 @@ export class ConfigService {
            
         )
     }
+
 }

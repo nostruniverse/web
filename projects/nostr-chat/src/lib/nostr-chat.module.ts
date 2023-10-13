@@ -1,23 +1,33 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChatWrapperComponent } from './chat-wrapper/chat-wrapper.component';
-import { ChatService } from './nostr-chat.service';
-import { ContactsListItemComponent } from './contacts-list-item/contacts-list-item.component';
 import { FormsModule } from '@angular/forms';
-import { UiModule } from 'ui';
+import { UiModule } from 'shared';
 import {DialogModule} from '@angular/cdk/dialog';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import { InfiniteScrollModule } from "ngx-infinite-scroll";
+import { ChatWindowComponent } from './components/chat-window/chat-window.component';
+import { ChatComponent } from './components/chat/chat.component';
+import { MessagesComponent } from './components/messages/messages.component';
+import { MessageComponent } from './components/message/message.component';
+import { ChatRoomComponent } from './components/chat-room/chat-room.component';
+import { ChatRoomsComponent } from './components/chat-rooms/chat-rooms.component';
+import { RouterModule } from '@angular/router';
+import { NostrChatService } from './nostr-chat.service';
 
 
 
 @NgModule({
   declarations: [
-    ChatWrapperComponent,
-    ContactsListItemComponent
+    ChatWindowComponent,
+    ChatComponent,
+    MessagesComponent,
+    MessageComponent,
+    ChatRoomComponent,
+    ChatRoomsComponent,
   ],
   imports: [
     CommonModule,
+    RouterModule,
     FormsModule,
     UiModule,
     DialogModule,
@@ -25,10 +35,11 @@ import { InfiniteScrollModule } from "ngx-infinite-scroll";
     InfiniteScrollModule
   ],
   providers: [
-    ChatService
+    NostrChatService
   ],
   exports: [
-    ChatWrapperComponent
+    ChatWindowComponent,
+    ChatComponent,
   ]
 })
 export class NostrChatModule { }

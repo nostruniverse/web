@@ -1,1 +1,18 @@
-<router-outlet></router-outlet>
+
+<ng-container *ngIf="showNavigation$ | async; else noNav">
+    <app-navigation>
+        <mat-nav-list>
+            <a mat-list-item routerLink="accounts" >Accounts</a>
+            <a mat-list-item routerLink="apps" >Apps</a>
+            <a mat-list-item routerLink="chat" >Chat</a>
+            <!-- <a mat-list-item routerLink="settings" >Settings</a> -->
+            <a mat-list-item (click)="exitMode()">Exit</a>
+        </mat-nav-list>
+    
+        <router-outlet></router-outlet>
+    </app-navigation>
+</ng-container>
+
+<ng-template #noNav>
+    <router-outlet ></router-outlet>
+</ng-template>

@@ -1,0 +1,68 @@
+
+
+/* Style for the chat bubble container */
+.chat-bubble {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    gap: 1rem;
+    max-width: 70%;
+  }
+
+  
+  .wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding-left: 1rem;
+  }
+
+  .wrapper.me {
+    justify-content: flex-end;
+    padding-right: 1rem;
+
+    .chat-bubble {
+      justify-content: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .user-name {
+      text-align: end;
+    }
+
+    .bubble-content {
+      background-color: #6ca6ee;
+      color: #ffffff;
+    }
+  
+  }
+
+  
+  /* Style for the user avatar */
+  .user-avatar {
+    width: 40px; /* Adjust the size as needed */
+    height: 40px; /* Adjust the size as needed */
+    border-radius: 50%; /* Make it circular */
+  }
+  
+  /* Style for the bubble content */
+  .bubble-content {
+    background-color: #ffffff; /* Bubble background color */
+    color: #000000; /* Text color */
+    border-radius: 10px; /* Rounded corners */
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a shadow for depth */
+    
+    
+  }
+  
+  /* Style for the user name */
+  .user-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  /* Style for the message content */
+  .message-content {
+    margin: 0;
+  }

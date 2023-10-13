@@ -1,0 +1,6 @@
+<div class="hover:bg-gray-50 p-4 cursor-pointer"
+(click)="select.next(contact)"
+[ngClass]="{'bg-gray-100': selected}"
+>
+    <div>{{ contact.name || contact.pk }}</div>
+</div>
